@@ -1,25 +1,35 @@
 import { container } from './container';
 import { Database } from '../config/database';
-import { UserRepository } from '../repositories/user.repository';
-import { UserService } from '../services/user.service';
-import { UserController } from '../controllers/user.controller';
+import { ProductCategoryRepository } from '../repositories/product-category.repository';
+import { ProductRepository } from '../repositories/product.repository';
+import { CustomerRepository } from '../repositories/customer.repository';
+import { BlogRepository } from '../repositories/blog.repository';
 
 export function initializeDI() {
   container.register('database', () => Database.getInstance(), true);
   
-  container.register('userRepository', () => {
+  // Product Category
+  container.register('productCategoryRepository', () => {
     const db = container.resolve<Database>('database').getDb();
-    return new UserRepository(db);
+    return new ProductCategoryRepository(db);
   }, true);
   
-  container.register('userService', () => {
-    const userRepository = container.resolve<UserRepository>('userRepository');
-    return new UserService(userRepository);
+  // Product
+  container.register('productRepository', () => {
+    const db = container.resolve<Database>('database').getDb();
+    return new ProductRepository(db);
   }, true);
   
-  container.register('userController', () => {
-    const userService = container.resolve<UserService>('userService');
-    return new UserController(userService);
+  // Customer
+  container.register('customerRepository', () => {
+    const db = container.resolve<Database>('database').getDb();
+    return new CustomerRepository(db);
+  }, true);
+  
+  // Blog
+  container.register('blogRepository', () => {
+    const db = container.resolve<Database>('database').getDb();
+    return new BlogRepository(db);
   }, true);
 }
 

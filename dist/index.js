@@ -7,7 +7,6 @@ const express_1 = __importDefault(require("express"));
 const config_1 = require("./config");
 const database_1 = require("./config/database");
 const di_1 = require("./di");
-const user_routes_1 = require("./routes/user.routes");
 // Load environment variables
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
@@ -52,9 +51,7 @@ async function startServer() {
         await database.connect(config_1.config.mongo.connectionString, config_1.config.mongo.dbName);
         // Initialize dependency injection
         (0, di_1.initializeDI)();
-        // Register routes
-        const userController = di_1.container.resolve('userController');
-        app.use('/api/users', (0, user_routes_1.createUserRoutes)(userController));
+        // Routes will be registered here when services are implemented
         // Start server
         app.listen(PORT, () => {
             console.log(`Server is running on port ${PORT}`);

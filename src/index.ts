@@ -1,8 +1,7 @@
 import express, { Request, Response, NextFunction } from 'express';
 import { config } from './config';
 import { Database } from './config/database';
-import { initializeDI, container } from './di';
-import { createUserRoutes } from './routes/user.routes';
+import { initializeDI } from './di';
 
 // Load environment variables
 import dotenv from 'dotenv';
@@ -54,9 +53,7 @@ async function startServer() {
     // Initialize dependency injection
     initializeDI();
 
-    // Register routes
-    const userController = container.resolve<any>('userController');
-    app.use('/api/users', createUserRoutes(userController));
+    // Routes will be registered here when services are implemented
 
     // Start server
     app.listen(PORT, () => {
