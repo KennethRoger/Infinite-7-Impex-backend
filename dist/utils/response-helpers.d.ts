@@ -14,4 +14,5 @@ export declare function createUnauthorizedResponse(message?: string): FailureRes
 export declare function createForbiddenResponse(message?: string): FailureResponse;
 export declare function createBadRequestResponse(message?: string): FailureResponse;
 export declare function createConflictResponse(message?: string): FailureResponse;
+export declare function createTooManyRequestsResponse(message?: string): FailureResponse;
 //# sourceMappingURL=response-helpers.d.ts.map

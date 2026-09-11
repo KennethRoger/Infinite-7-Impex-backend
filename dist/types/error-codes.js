@@ -10,5 +10,6 @@ exports.ERROR_CODES = {
     FORBIDDEN: 'FORBIDDEN',
     BAD_REQUEST: 'BAD_REQUEST',
     CONFLICT: 'CONFLICT',
+    TOO_MANY_REQUESTS: 'TOO_MANY_REQUESTS',
 };
 //# sourceMappingURL=error-codes.js.map

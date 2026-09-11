@@ -1,8 +1,64 @@
 # Application Models
 
-This document describes the data models implemented for the Infinite 7 Impex application based on the eraser.io schema.
+This document describes the data models implemented for the Infinite 7 Impex application based on the eraser.io schema and domain requirements.
 
 ## Models Overview
+
+### Admin
+Represents the system administrator credentials for API management.
+
+**Schema:**
+```typescript
+{
+  email: string (required, valid email)
+  passwordHash: string (required, bcrypt hash)
+  role: 'admin' (default: 'admin')
+  createdAt: Date (auto-generated)
+  updatedAt: Date (auto-generated)
+}
+```
+
+**Repository Methods:**
+- `findByEmail(email)` - Find administrator by email address
+- Standard CRUD operations from BaseRepository
+
+**File:** [admin.model.ts](file:///home/kenneth/Work/Projects/Infinite%207%20Impex%20-%20code/server/src/models/admin.model.ts)
+
+---
+
+### Customer
+Represents customer enquiries with priority levels, contact information, and administrative notes.
+
+**Schema:**
+```typescript
+{
+  fullName: string (required, 2-20 characters)
+  email: string (required, valid email)
+  country: string (required, 1-100 characters)
+  phone: string (required, string)
+  message: string (required)
+  priority: 'high' | 'low' | 'medium' | 'unset' (default: 'unset')
+  isActive: boolean (default: true)
+  notes: string (default: '')
+  createdAt: Date (auto-generated)
+  updatedAt: Date (auto-generated)
+}
+```
+
+**Repository Methods:**
+- `findFiltered(filters, pagination, sort)` - Filter customers by `fullName`, `email`, `country`, `priority`, `notes`, `isActive` with pagination and sorting
+- `findByEmail(email)` - Find customer by email
+- `findByPhone(phone)` - Find customer by phone
+- `findByCountry(country)` - Get customers by country
+- `findByPriority(priority)` - Get customers by priority level
+- `findActive()` - Get all active customers
+- `findActiveByCountry(country)` - Get active customers by country
+- `findActiveByPriority(priority)` - Get active customers by priority
+- Standard CRUD operations from BaseRepository
+
+**File:** [customer.model.ts](file:///home/kenneth/Work/Projects/Infinite%207%20Impex%20-%20code/server/src/models/customer.model.ts)
+
+---
 
 ### ProductCategory
 Represents product categories with hierarchical organization.
@@ -24,7 +80,7 @@ Represents product categories with hierarchical organization.
 - `findByName(name)` - Find category by name
 - Standard CRUD operations from BaseRepository
 
-**File:** <ref_file file="/home/kenneth/Work/Projects/Infinite 7 Impex - code/server/src/models/product-category.model.ts" />
+**File:** [product-category.model.ts](file:///home/kenneth/Work/Projects/Infinite%207%20Impex%20-%20code/server/src/models/product-category.model.ts)
 
 ---
 
@@ -50,39 +106,7 @@ Represents products with category references and image galleries.
 - `findActiveByCategory(categoryId)` - Get active products by category
 - Standard CRUD operations from BaseRepository
 
-**File:** <ref_file file="/home/kenneth/Work/Projects/Infinite 7 Impex - code/server/src/models/product.model.ts" />
-
----
-
-### Customer
-Represents customer information with priority levels and status tracking.
-
-**Schema:**
-```typescript
-{
-  fullName: string (required, 1-100 characters)
-  email: string (required, valid email)
-  country: string (required, 1-100 characters)
-  phone: string (required, 1-20 characters)
-  priority: 'high' | 'low' | 'medium' | 'unset' (default: 'unset')
-  isActive: boolean (default: true)
-  notes: string (optional)
-  createdAt: Date (auto-generated)
-  updatedAt: Date (auto-generated)
-}
-```
-
-**Repository Methods:**
-- `findByEmail(email)` - Find customer by email
-- `findByPhone(phone)` - Find customer by phone
-- `findByCountry(country)` - Get customers by country
-- `findByPriority(priority)` - Get customers by priority level
-- `findActive()` - Get all active customers
-- `findActiveByCountry(country)` - Get active customers by country
-- `findActiveByPriority(priority)` - Get active customers by priority
-- Standard CRUD operations from BaseRepository
-
-**File:** <ref_file file="/home/kenneth/Work/Projects/Infinite 7 Impex - code/server/src/models/customer.model.ts" />
+**File:** [product.model.ts](file:///home/kenneth/Work/Projects/Infinite%207%20Impex%20-%20code/server/src/models/product.model.ts)
 
 ---
 
@@ -116,7 +140,7 @@ Represents blog posts with embedded sections for structured content.
 - `removeSection(blogId, sectionIndex)` - Remove a section from a blog
 - Standard CRUD operations from BaseRepository
 
-**File:** <ref_file file="/home/kenneth/Work/Projects/Infinite 7 Impex - code/server/src/models/blog.model.ts" />
+**File:** [blog.model.ts](file:///home/kenneth/Work/Projects/Infinite%207%20Impex%20-%20code/server/src/models/blog.model.ts)
 
 ---
 
@@ -132,41 +156,22 @@ All repositories extend from `BaseRepository<T>` which provides standard CRUD op
 - `delete(id)` - Delete document by id
 - `count(filter)` - Count documents matching filter
 
-**Base Repository:** <ref_file file="/home/kenneth/Work/Projects/Infinite 7 Impex - code/server/src/repositories/base.repository.ts" />
+**Base Repository:** [base.repository.ts](file:///home/kenneth/Work/Projects/Infinite%207%20Impex%20-%20code/server/src/repositories/base.repository.ts)
 
 ## Dependency Injection
 
-All repositories are registered in the DI container in <ref_file file="/home/kenneth/Work/Projects/Infinite 7 Impex - code/server/src/di/index.ts" />:
+All repositories, services, and controllers are registered in the DI container in [src/di/index.ts](file:///home/kenneth/Work/Projects/Infinite%207%20Impex%20-%20code/server/src/di/index.ts):
 
-- `productCategoryRepository`
-- `productRepository`
-- `customerRepository`
-- `blogRepository`
-
-## Validation
-
-All models use Zod schemas for runtime validation:
-
-- Create schemas for input validation
-- Update schemas for partial updates
-- TypeScript types inferred from Zod schemas
-- Validation errors return detailed messages
+- Repositories: `adminRepository`, `customerRepository`, `productCategoryRepository`, `productRepository`, `blogRepository`
+- Services: `authService`, `customerService`, `emailService`
+- Controllers: `authController`, `customerController`
 
 ## Database Collections
 
 The repositories map to the following MongoDB collections:
 
+- `admins` - Admin user credentials
+- `customers` - Customer enquiry records and status
 - `productCategories` - ProductCategory documents
 - `products` - Product documents
-- `customers` - Customer documents
 - `blogs` - Blog documents with embedded sections
-
-## Next Steps
-
-To implement full CRUD operations for these models:
-
-1. Create service classes for each model (business logic layer)
-2. Create controller classes for HTTP request handling
-3. Create route definitions for Express
-4. Register routes in the main application
-5. Add API endpoints for each model

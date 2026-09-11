@@ -10,6 +10,7 @@ exports.createUnauthorizedResponse = createUnauthorizedResponse;
 exports.createForbiddenResponse = createForbiddenResponse;
 exports.createBadRequestResponse = createBadRequestResponse;
 exports.createConflictResponse = createConflictResponse;
+exports.createTooManyRequestsResponse = createTooManyRequestsResponse;
 const error_codes_1 = require("../types/error-codes");
 exports.VALIDATION_MESSAGES = {
     SINGLE_FIELD_INVALID: 'Field is not valid',
@@ -61,5 +62,8 @@ function createBadRequestResponse(message = 'Bad request') {
 }
 function createConflictResponse(message = 'Conflict') {
     return createFailureResponse(message, error_codes_1.ERROR_CODES.CONFLICT, []);
+}
+function createTooManyRequestsResponse(message = 'Too many requests, please try again later') {
+    return createFailureResponse(message, error_codes_1.ERROR_CODES.TOO_MANY_REQUESTS, []);
 }
 //# sourceMappingURL=response-helpers.js.map

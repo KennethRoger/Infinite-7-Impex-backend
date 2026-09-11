@@ -13,5 +13,17 @@ export declare const config: {
         from: string;
         adminEmail: string;
     };
+    jwt: {
+        secret: string;
+        expiresIn: string;
+    };
+    admin: {
+        email: string;
+        password: string;
+    };
+    rateLimit: {
+        windowMs: number;
+        max: number;
+    };
 };
 //# sourceMappingURL=index.d.ts.map

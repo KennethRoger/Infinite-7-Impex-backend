@@ -9,6 +9,7 @@ export declare const HTTP_STATUS: {
     readonly NOT_FOUND: 404;
     readonly CONFLICT: 409;
     readonly UNPROCESSABLE_ENTITY: 422;
+    readonly TOO_MANY_REQUESTS: 429;
     readonly INTERNAL_SERVER_ERROR: 500;
 };
 export type HttpStatusCode = typeof HTTP_STATUS[keyof typeof HTTP_STATUS];

@@ -7,6 +7,7 @@ export declare const ERROR_CODES: {
     readonly FORBIDDEN: 'FORBIDDEN';
     readonly BAD_REQUEST: 'BAD_REQUEST';
     readonly CONFLICT: 'CONFLICT';
+    readonly TOO_MANY_REQUESTS: 'TOO_MANY_REQUESTS';
 };
 export type ErrorCode = typeof ERROR_CODES[keyof typeof ERROR_CODES];
 //# sourceMappingURL=error-codes.d.ts.map

@@ -85,3 +85,9 @@ export function createConflictResponse(
 ): FailureResponse {
   return createFailureResponse(message, ERROR_CODES.CONFLICT, []);
 }
+
+export function createTooManyRequestsResponse(
+  message: string = 'Too many requests, please try again later'
+): FailureResponse {
+  return createFailureResponse(message, ERROR_CODES.TOO_MANY_REQUESTS, []);
+}

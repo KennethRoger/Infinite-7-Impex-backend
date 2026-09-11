@@ -6,15 +6,20 @@ import { config } from './config';
 import { Database } from './config/database';
 import { initializeDI, container } from './di';
 import { errorHandler } from './middleware/error-handler';
+import { globalRateLimiter } from './middleware/rate-limiter';
 import { createSuccessResponse, createNotFoundResponse } from './utils/response-helpers';
 import { CustomerController } from './controllers/customer.controller';
 import { createCustomerRoutes } from './routes/customer.routes';
+import { AuthController } from './controllers/auth.controller';
+import { createAuthRoutes } from './routes/auth.routes';
+import { AuthService } from './services/auth.service';
 import { HTTP_STATUS } from './types/http-status';
 
 const app = express();
 const PORT = config.port;
 
-// Middleware
+// Global Middleware
+app.use(globalRateLimiter);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -45,7 +50,16 @@ async function startServer() {
     // Initialize dependency injection
     initializeDI();
 
+    // Seed initial admin if not existing
+    const authService = container.resolve<AuthService>('authService');
+    await authService.seedInitialAdmin();
+
     // Register routes
+    const authController = container.resolve<AuthController>('authController');
+    const authRoutes = createAuthRoutes(authController);
+    app.use('/auth', authRoutes);
+    app.use('/api/auth', authRoutes);
+
     const customerController = container.resolve<CustomerController>('customerController');
     const customerRoutes = createCustomerRoutes(customerController);
     app.use('/customers', customerRoutes);
@@ -63,6 +77,7 @@ async function startServer() {
     app.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);
       console.log(`Health check available at http://localhost:${PORT}/health`);
+      console.log(`Auth API available at http://localhost:${PORT}/auth`);
       console.log(`Customer API available at http://localhost:${PORT}/customers`);
     });
 

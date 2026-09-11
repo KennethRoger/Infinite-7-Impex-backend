@@ -1,36 +1,37 @@
 # Infinite 7 Impex Backend Server
 
-A TypeScript Node.js backend server with MongoDB integration, following a repository + service architecture with dependency injection.
+A TypeScript Node.js backend server with MongoDB integration, following a repository + service + controller architecture with dependency injection, JWT authentication, and global rate limiting.
 
 ## Architecture
 
 ### Folder Structure
 ```
 src/
-├── config/          # Configuration files (database, app config)
-├── controllers/     # HTTP request handlers
-├── di/             # Dependency injection container
-├── models/         # Zod schemas and TypeScript types
-├── repositories/   # Data access layer (MongoDB operations)
-├── routes/         # Express route definitions
-├── services/       # Business logic layer
-├── types/          # Common TypeScript interfaces
-└── index.ts        # Application entry point
+├── config/          # Configuration files (database, app config, mail, JWT, rate limiting)
+├── controllers/     # HTTP request handlers (Auth, Customer)
+├── di/              # Dependency injection container
+├── middleware/      # Global error handling, JWT auth, and rate limiting
+├── models/          # Zod schemas, DTOs, and TypeScript types
+├── repositories/    # Data access layer (MongoDB operations)
+├── routes/          # Express route definitions
+├── services/        # Business logic layer (Auth, Customer, Email)
+├── types/           # Common TypeScript interfaces, HTTP status codes, error codes
+└── index.ts         # Application entry point & middleware wiring
 ```
 
 ### Architecture Layers
 
-1. **Controllers** - Handle HTTP requests/responses
-2. **Services** - Business logic and validation
-3. **Repositories** - Data access (MongoDB operations)
-4. **Models** - Zod schemas for type validation
-5. **DI Container** - Dependency injection for loose coupling
+1. **Controllers** - Handle HTTP requests, input validation, and response envelopes
+2. **Services** - Business logic, email notifications, authentication, and workflow orchestration
+3. **Repositories** - Direct data access (MongoDB operations via generic `BaseRepository<T>`)
+4. **Models** - Zod schemas for runtime validation and static TypeScript type inference
+5. **DI Container** - Dependency injection container for loose coupling and testability
 
 ## Setup
 
 ### Prerequisites
 - Node.js (v18 or higher)
-- MongoDB (local or cloud instance)
+- MongoDB (local instance, Docker container, or MongoDB Atlas)
 
 ### Installation
 ```bash
@@ -43,6 +44,24 @@ Create a `.env` file in the root directory:
 PORT=3000
 MONGODB_CONNECTION_STRING=mongodb://localhost:27017
 MONGODB_DB_NAME=infinite7_impex
+
+# Email Notification Settings
+SMTP_HOST=smtp.mailtrap.io
+SMTP_PORT=2525
+SMTP_SECURE=false
+SMTP_USER=
+SMTP_PASS=
+EMAIL_FROM=Infinite 7 Impex <noreply@infinite7impex.com>
+ADMIN_EMAIL=admin@infinite7impex.com
+
+# Admin Authentication Settings
+JWT_SECRET=your_jwt_secret_key_here
+JWT_EXPIRES_IN=24h
+ADMIN_PASSWORD=Admin@12345
+
+# Global Rate Limiting Settings
+RATE_LIMIT_WINDOW_MS=900000
+RATE_LIMIT_MAX=100
 ```
 
 ## Available Scripts
@@ -59,176 +78,84 @@ npm run dev:watch  # Run with auto-reload on file changes
 ### Health Check
 - `GET /health` - Check server and database status
 
-### Users
-- `GET /api/users` - Get all users (with pagination and sorting)
-- `GET /api/users/:id` - Get user by ID
-- `POST /api/users` - Create new user
-- `PUT /api/users/:id` - Update user
-- `DELETE /api/users/:id` - Delete user
+### Authentication
+- `POST /api/auth/login` (or `/auth/login`) - Admin login (returns time-limited JWT token)
+- `POST /api/auth/logout` (or `/auth/logout`) - Admin logout
 
-### User Schema
-```typescript
+#### Admin Login Request Body
+```json
 {
-  email: string (required, valid email)
-  name: string (required, 2-100 characters)
+  "email": "admin@infinite7impex.com",
+  "password": "Admin@12345"
 }
 ```
 
-### Query Parameters (for GET /api/users)
-- `page` - Page number (default: 1)
-- `limit` - Items per page (default: 10)
-- `sortBy` - Field to sort by (default: createdAt)
-- `sortOrder` - Sort order: 'asc' or 'desc' (default: 'desc')
+### Customers
 
-## Example Usage
+#### 1. Public Enquiry Submission
+- `POST /api/customers` (or `/customers`) - Public customer enquiry submission
+  - Creates customer record with `priority: 'unset'`, `isActive: true`, and `notes: ''`
+  - Sends email notification to administrator via Nodemailer
 
-### Create a user
-```bash
-curl -X POST http://localhost:3000/api/users \
-  -H "Content-Type: application/json" \
-  -d '{"email":"user@example.com","name":"John Doe"}'
+**Request Body:**
+```json
+{
+  "fullName": "John Doe",
+  "country": "Sri Lanka",
+  "email": "johndoe@gmail.com",
+  "phone": "+94771234567",
+  "message": "This is an enquiry message"
+}
 ```
 
-### Get all users
-```bash
-curl http://localhost:3000/api/users?page=1&limit=10&sortBy=name&sortOrder=asc
+#### 2. Admin Customer Management (Requires `Authorization: Bearer <token>`)
+- `GET /api/customers` - Get all customers with pagination, sorting, and filters:
+  - `page`: Page number (default: `1`)
+  - `limit`: Items per page (default: `10`)
+  - `sortBy`: Field to sort by (default: `createdAt`)
+  - `sortOrder`: `'asc'` or `'desc'` (default: `'desc'`)
+  - `fullName`: Filter by customer name (case-insensitive substring)
+  - `email`: Filter by email (case-insensitive substring)
+  - `country`: Filter by country (case-insensitive substring)
+  - `priority`: Filter by priority (`'high'`, `'low'`, `'medium'`, `'unset'`)
+  - `notes`: Filter by admin notes (case-insensitive substring)
+  - `isActive`: Filter by active status (`true` / `false`)
+- `GET /api/customers/:id` - Get customer by MongoDB ObjectId
+- `PATCH /api/customers/:id/priority` - Update customer priority (`high`, `low`, `medium`, `unset`)
+- `DELETE /api/customers/:id` - Delete customer by MongoDB ObjectId
+
+## Response Envelope Format
+
+All responses follow a consistent standard:
+
+### Success Response
+```json
+{
+  "success": true,
+  "message": "Human-readable message",
+  "data": {},
+  "error": null
+}
 ```
 
-### Get user by ID
-```bash
-curl http://localhost:3000/api/users/{id}
-```
-
-### Update user
-```bash
-curl -X PUT http://localhost:3000/api/users/{id} \
-  -H "Content-Type: application/json" \
-  -d '{"name":"Updated Name"}'
-```
-
-### Delete user
-```bash
-curl -X DELETE http://localhost:3000/api/users/{id}
-```
-
-## Adding New Entities
-
-To add a new entity (e.g., Product):
-
-1. **Create Model** (`src/models/product.model.ts`):
-```typescript
-import { z } from 'zod';
-
-export const ProductSchema = z.object({
-  name: z.string().min(1),
-  price: z.number().positive(),
-  // ... other fields
-});
-
-export type Product = z.infer<typeof ProductSchema>;
-export const CreateProductSchema = ProductSchema;
-export type CreateProductDto = z.infer<typeof CreateProductSchema>;
-export const UpdateProductSchema = ProductSchema.partial();
-export type UpdateProductDto = z.infer<typeof UpdateProductSchema>;
-```
-
-2. **Create Repository** (`src/repositories/product.repository.ts`):
-```typescript
-import { Db, WithId } from 'mongodb';
-import { BaseRepository } from './base.repository';
-import { Product } from '../models/product.model';
-
-export class ProductRepository extends BaseRepository<Product> {
-  constructor(db: Db) {
-    super(db, 'products');
+### Failure Response
+```json
+{
+  "success": false,
+  "message": "Field is not valid | Multiple fields are not valid | Error description",
+  "data": null,
+  "error": {
+    "codeMsg": "ERROR_CODE",
+    "details": [
+      { "field": "email", "message": "Email must be a valid email address" }
+    ]
   }
-  
-  // Add custom queries here
 }
 ```
 
-3. **Create Service** (`src/services/product.service.ts`):
-```typescript
-import { WithId } from 'mongodb';
-import { ProductRepository } from '../repositories/product.repository';
-import { Product, CreateProductDto, UpdateProductDto } from '../models/product.model';
-
-export class ProductService {
-  constructor(private productRepository: ProductRepository) {}
-  
-  // Implement business logic
-}
-```
-
-4. **Create Controller** (`src/controllers/product.controller.ts`):
-```typescript
-import { Request, Response, NextFunction } from 'express';
-import { ProductService } from '../services/product.service';
-
-export class ProductController {
-  constructor(private productService: ProductService) {}
-  
-  // Implement HTTP handlers
-}
-```
-
-5. **Create Routes** (`src/routes/product.routes.ts`):
-```typescript
-import { Router } from 'express';
-import { ProductController } from '../controllers/product.controller';
-
-export function createProductRoutes(productController: ProductController): Router {
-  const router = Router();
-  
-  router.get('/', (req, res, next) => productController.getAllProducts(req, res, next));
-  // ... other routes
-  
-  return router;
-}
-```
-
-6. **Register in DI Container** (`src/di/index.ts`):
-```typescript
-container.register('productRepository', () => {
-  const db = container.resolve<Database>('database').getDb();
-  return new ProductRepository(db);
-}, true);
-
-container.register('productService', () => {
-  const productRepository = container.resolve<ProductRepository>('productRepository');
-  return new ProductService(productRepository);
-}, true);
-
-container.register('productController', () => {
-  const productService = container.resolve<ProductService>('productService');
-  return new ProductController(productService);
-}, true);
-```
-
-7. **Register Routes** (`src/index.ts`):
-```typescript
-const productController = container.resolve('productController');
-app.use('/api/products', createProductRoutes(productController));
-```
-
-## Technologies Used
-
-- **Node.js** - Runtime environment
-- **Express** - Web framework
-- **TypeScript** - Type-safe JavaScript
-- **MongoDB** - NoSQL database
-- **Zod** - Schema validation
-- **ts-node** - TypeScript execution
-- **dotenv** - Environment variable management
-
-## Features
-
-- ✅ TypeScript with strict type checking
-- ✅ MongoDB integration with Repository pattern
-- ✅ Service layer for business logic
-- ✅ Dependency injection for loose coupling
-- ✅ Zod schemas for validation
-- ✅ Pagination and sorting support
-- ✅ Error handling middleware
-- ✅ Graceful shutdown
-- ✅ Environment configuration
+## Security & Features
+- ✅ **JWT Authentication**: Time-limited signed token without stateful session overhead
+- ✅ **Bcrypt Password Hashing**: Passwords stored safely hashed in MongoDB
+- ✅ **Global Rate Limiting**: Protection against brute-force and DDoS attempts
+- ✅ **Strict TypeScript**: Type-safe architecture with `strict` and `exactOptionalPropertyTypes`
+- ✅ **Email Integration**: Automated admin notifications with fallback console logging
