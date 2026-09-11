@@ -1,6 +1,12 @@
 import { SuccessResponse, FailureResponse, ErrorDetail } from '../types/response';
 import { ERROR_CODES, ErrorCode } from '../types/error-codes';
 
+export const VALIDATION_MESSAGES = {
+  SINGLE_FIELD_INVALID: 'Field is not valid',
+  MULTIPLE_FIELDS_INVALID: 'Multiple fields are not valid',
+  DEFAULT_FAILED: 'Validation failed',
+} as const;
+
 export function createSuccessResponse<T>(
   data: T,
   message: string = 'Success'
@@ -31,9 +37,17 @@ export function createFailureResponse(
 
 export function createValidationErrorResponse(
   details: ErrorDetail[],
-  message: string = 'Validation failed'
+  message?: string
 ): FailureResponse {
-  return createFailureResponse(message, ERROR_CODES.VALIDATION_ERROR, details);
+  const resolvedMessage =
+    message ||
+    (details.length === 1
+      ? VALIDATION_MESSAGES.SINGLE_FIELD_INVALID
+      : details.length > 1
+      ? VALIDATION_MESSAGES.MULTIPLE_FIELDS_INVALID
+      : VALIDATION_MESSAGES.DEFAULT_FAILED);
+
+  return createFailureResponse(resolvedMessage, ERROR_CODES.VALIDATION_ERROR, details);
 }
 
 export function createNotFoundResponse(

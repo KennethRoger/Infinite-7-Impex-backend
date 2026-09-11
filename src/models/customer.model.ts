@@ -1,22 +1,35 @@
 import { z } from 'zod';
 
-export const CustomerPriorityEnum = z.enum(['high', 'low', 'medium', 'unset']);
+export const CUSTOMER_PRIORITIES = ['high', 'low', 'medium', 'unset'] as const;
+export const CustomerPriorityEnum = z.enum(CUSTOMER_PRIORITIES);
 
 export const CustomerSchema = z.object({
-  fullName: z.string().min(1).max(100),
-  email: z.string().email(),
-  country: z.string().min(1).max(100),
-  phone: z.string().min(1).max(20),
+  fullName: z
+    .string()
+    .min(2, 'Name should be greater than 1 and less than 20 chars')
+    .max(20, 'Name should be greater than 1 and less than 20 chars'),
+  email: z.string().email('Email must be a valid email address'),
+  country: z.string().min(1, 'Invalid Country'),
+  phone: z.string().min(1, 'Phone number is required'),
+  message: z.string().min(1, 'Message is required'),
   priority: CustomerPriorityEnum.default('unset'),
   isActive: z.boolean().default(true),
-  notes: z.string().optional(),
+  notes: z.string().default  createdAt: z.date().optional(),
+  updatedAt: z.date().optional(),
 });
 
 export type Customer = z.infer<typeof CustomerSchema>;
 export type CustomerPriority = z.infer<typeof CustomerPriorityEnum>;
 
-export const CreateCustomerSchema = CustomerSchema;
+export const CreateCustomerSchema = CustomerSchema.omit({
+  createdAt: true,
+  updatedAt: true,
+});
 export type CreateCustomerDto = z.infer<typeof CreateCustomerSchema>;
 
-export const UpdateCustomerSchema = CustomerSchema.partial();
+export const UpdateCustomerSchema = CustomerSchema.omit({
+  createdAt: true,
+  updatedAt: true,
+}).partial();
+al();
 export type UpdateCustomerDto = z.infer<typeof UpdateCustomerSchema>;

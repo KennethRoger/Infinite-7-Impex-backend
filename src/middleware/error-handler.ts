@@ -7,11 +7,12 @@ import {
   createDuplicateEntryResponse
 } from '../utils/response-helpers';
 import { ERROR_CODES, ErrorCode } from '../types/error-codes';
+import { HTTP_STATUS, HttpStatusCode } from '../types/http-status';
 import type { ErrorDetail } from '../types/response';
 
 export class AppError extends Error {
   constructor(
-    public statusCode: number,
+    public statusCode: HttpStatusCode,
     public codeMsg: ErrorCode,
     message: string,
     public details: ErrorDetail[] = []
@@ -31,12 +32,12 @@ export function errorHandler(
 
   // Handle Zod validation errors
   if (err instanceof ZodError) {
-    const details = err.issues.map((error: any) => ({
-      field: error.path.join('.'),
-      message: error.message,
+    const details: ErrorDetail[] = err.issues.map((issue) => ({
+      field: issue.path.join('.'),
+      message: issue.message,
     }));
     
-    res.status(400).json(createValidationErrorResponse(details));
+    res.status(HTTP_STATUS.BAD_REQUEST).json(createValidationErrorResponse(details));
     return;
   }
 
@@ -52,20 +53,20 @@ export function errorHandler(
   const errorMessage = err.message || 'Internal server error';
   
   if (errorMessage.includes('not found')) {
-    res.status(404).json(createNotFoundResponse(errorMessage));
+    res.status(HTTP_STATUS.NOT_FOUND).json(createNotFoundResponse(errorMessage));
     return;
   }
   
   if (errorMessage.includes('Validation error')) {
-    res.status(400).json(createValidationErrorResponse([], errorMessage));
+    res.status(HTTP_STATUS.BAD_REQUEST).json(createValidationErrorResponse([], errorMessage));
     return;
   }
   
   if (errorMessage.includes('already exists') || errorMessage.includes('duplicate')) {
-    res.status(409).json(createDuplicateEntryResponse(errorMessage));
+    res.status(HTTP_STATUS.CONFLICT).json(createDuplicateEntryResponse(errorMessage));
     return;
   }
 
   // Default server error
-  res.status(500).json(createFailureResponse(errorMessage, ERROR_CODES.SERVER_ERROR));
+  res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json(createFailureResponse(errorMessage, ERROR_CODES.SERVER_ERROR));
 }

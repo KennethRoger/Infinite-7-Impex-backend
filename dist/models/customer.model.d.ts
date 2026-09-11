@@ -1,4 +1,5 @@
 import { z } from 'zod';
+export declare const CUSTOMER_PRIORITIES: readonly ['high', 'low', 'medium', 'unset'];
 export declare const CustomerPriorityEnum: z.ZodEnum<{
     high: "high";
     low: "low";
@@ -10,6 +11,7 @@ export declare const CustomerSchema: z.ZodObject<{
     email: z.ZodString;
     country: z.ZodString;
     phone: z.ZodString;
+    message: z.ZodString;
     priority: z.ZodDefault<z.ZodEnum<{
         high: "high";
         low: "low";
@@ -17,7 +19,9 @@ export declare const CustomerSchema: z.ZodObject<{
         unset: "unset";
     }>>;
     isActive: z.ZodDefault<z.ZodBoolean>;
-    notes: z.ZodOptional<z.ZodString>;
+    notes: z.ZodDefault<z.ZodString>;
+    createdAt: z.ZodOptional<z.ZodDate>;
+    updatedAt: z.ZodOptional<z.ZodDate>;
 }, z.core.$strip>;
 export type Customer = z.infer<typeof CustomerSchema>;
 export type CustomerPriority = z.infer<typeof CustomerPriorityEnum>;
@@ -26,6 +30,7 @@ export declare const CreateCustomerSchema: z.ZodObject<{
     email: z.ZodString;
     country: z.ZodString;
     phone: z.ZodString;
+    message: z.ZodString;
     priority: z.ZodDefault<z.ZodEnum<{
         high: "high";
         low: "low";
@@ -33,7 +38,7 @@ export declare const CreateCustomerSchema: z.ZodObject<{
         unset: "unset";
     }>>;
     isActive: z.ZodDefault<z.ZodBoolean>;
-    notes: z.ZodOptional<z.ZodString>;
+    notes: z.ZodDefault<z.ZodString>;
 }, z.core.$strip>;
 export type CreateCustomerDto = z.infer<typeof CreateCustomerSchema>;
 export declare const UpdateCustomerSchema: z.ZodObject<{
@@ -41,6 +46,7 @@ export declare const UpdateCustomerSchema: z.ZodObject<{
     email: z.ZodOptional<z.ZodString>;
     country: z.ZodOptional<z.ZodString>;
     phone: z.ZodOptional<z.ZodString>;
+    message: z.ZodOptional<z.ZodString>;
     priority: z.ZodOptional<z.ZodDefault<z.ZodEnum<{
         high: "high";
         low: "low";
@@ -48,7 +54,7 @@ export declare const UpdateCustomerSchema: z.ZodObject<{
         unset: "unset";
     }>>>;
     isActive: z.ZodOptional<z.ZodDefault<z.ZodBoolean>>;
-    notes: z.ZodOptional<z.ZodOptional<z.ZodString>>;
+    notes: z.ZodOptional<z.ZodDefault<z.ZodString>>;
 }, z.core.$strip>;
 export type UpdateCustomerDto = z.infer<typeof UpdateCustomerSchema>;
 //# sourceMappingURL=customer.model.d.ts.map

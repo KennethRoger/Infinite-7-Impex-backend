@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.VALIDATION_MESSAGES = void 0;
 exports.createSuccessResponse = createSuccessResponse;
 exports.createFailureResponse = createFailureResponse;
 exports.createValidationErrorResponse = createValidationErrorResponse;
@@ -10,6 +11,11 @@ exports.createForbiddenResponse = createForbiddenResponse;
 exports.createBadRequestResponse = createBadRequestResponse;
 exports.createConflictResponse = createConflictResponse;
 const error_codes_1 = require("../types/error-codes");
+exports.VALIDATION_MESSAGES = {
+    SINGLE_FIELD_INVALID: 'Field is not valid',
+    MULTIPLE_FIELDS_INVALID: 'Multiple fields are not valid',
+    DEFAULT_FAILED: 'Validation failed',
+};
 function createSuccessResponse(data, message = 'Success') {
     return {
         success: true,
@@ -29,8 +35,14 @@ function createFailureResponse(message, codeMsg = error_codes_1.ERROR_CODES.SERV
         },
     };
 }
-function createValidationErrorResponse(details, message = 'Validation failed') {
-    return createFailureResponse(message, error_codes_1.ERROR_CODES.VALIDATION_ERROR, details);
+function createValidationErrorResponse(details, message) {
+    const resolvedMessage = message ||
+        (details.length === 1
+            ? exports.VALIDATION_MESSAGES.SINGLE_FIELD_INVALID
+            : details.length > 1
+                ? exports.VALIDATION_MESSAGES.MULTIPLE_FIELDS_INVALID
+                : exports.VALIDATION_MESSAGES.DEFAULT_FAILED);
+    return createFailureResponse(resolvedMessage, error_codes_1.ERROR_CODES.VALIDATION_ERROR, details);
 }
 function createNotFoundResponse(message = 'Resource not found') {
     return createFailureResponse(message, error_codes_1.ERROR_CODES.NOT_FOUND, []);

@@ -5,6 +5,7 @@ exports.errorHandler = errorHandler;
 const zod_1 = require("zod");
 const response_helpers_1 = require("../utils/response-helpers");
 const error_codes_1 = require("../types/error-codes");
+const http_status_1 = require("../types/http-status");
 class AppError extends Error {
     constructor(statusCode, codeMsg, message, details = []) {
         super(message);
@@ -19,11 +20,11 @@ function errorHandler(err, _req, res, _next) {
     console.error('Error:', err);
     // Handle Zod validation errors
     if (err instanceof zod_1.ZodError) {
-        const details = err.issues.map((error) => ({
-            field: error.path.join('.'),
-            message: error.message,
+        const details = err.issues.map((issue) => ({
+            field: issue.path.join('.'),
+            message: issue.message,
         }));
-        res.status(400).json((0, response_helpers_1.createValidationErrorResponse)(details));
+        res.status(http_status_1.HTTP_STATUS.BAD_REQUEST).json((0, response_helpers_1.createValidationErrorResponse)(details));
         return;
     }
     // Handle custom application errors
@@ -34,18 +35,18 @@ function errorHandler(err, _req, res, _next) {
     // Handle standard errors
     const errorMessage = err.message || 'Internal server error';
     if (errorMessage.includes('not found')) {
-        res.status(404).json((0, response_helpers_1.createNotFoundResponse)(errorMessage));
+        res.status(http_status_1.HTTP_STATUS.NOT_FOUND).json((0, response_helpers_1.createNotFoundResponse)(errorMessage));
         return;
     }
     if (errorMessage.includes('Validation error')) {
-        res.status(400).json((0, response_helpers_1.createValidationErrorResponse)([], errorMessage));
+        res.status(http_status_1.HTTP_STATUS.BAD_REQUEST).json((0, response_helpers_1.createValidationErrorResponse)([], errorMessage));
         return;
     }
     if (errorMessage.includes('already exists') || errorMessage.includes('duplicate')) {
-        res.status(409).json((0, response_helpers_1.createDuplicateEntryResponse)(errorMessage));
+        res.status(http_status_1.HTTP_STATUS.CONFLICT).json((0, response_helpers_1.createDuplicateEntryResponse)(errorMessage));
         return;
     }
     // Default server error
-    res.status(500).json((0, response_helpers_1.createFailureResponse)(errorMessage, error_codes_1.ERROR_CODES.SERVER_ERROR));
+    res.status(http_status_1.HTTP_STATUS.INTERNAL_SERVER_ERROR).json((0, response_helpers_1.createFailureResponse)(errorMessage, error_codes_1.ERROR_CODES.SERVER_ERROR));
 }
 //# sourceMappingURL=error-handler.js.map

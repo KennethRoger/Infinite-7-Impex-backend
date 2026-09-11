@@ -1,13 +1,15 @@
 import express from 'express';
-import { config } from './config';
-import { Database } from './config/database';
-import { initializeDI } from './di';
-import { errorHandler } from './middleware/error-handler';
-import { createSuccessResponse, createNotFoundResponse } from './utils/response-helpers';
-
-// Load environment variables
 import dotenv from 'dotenv';
 dotenv.config();
+
+import { config } from './config';
+import { Database } from './config/database';
+import { initializeDI, container } from './di';
+import { errorHandler } from './middleware/error-handler';
+import { createSuccessResponse, createNotFoundResponse } from './utils/response-helpers';
+import { CustomerController } from './controllers/customer.controller';
+import { createCustomerRoutes } from './routes/customer.routes';
+import { HTTP_STATUS } from './types/http-status';
 
 const app = express();
 const PORT = config.port;
@@ -18,7 +20,9 @@ app.use(express.urlencoded({ extended: true }));
 
 // Basic routes
 app.get('/', (_req, res) => {
-  res.json(createSuccessResponse({ message: 'Welcome to Infinite 7 Impex API' }, 'API is running'));
+  res.status(HTTP_STATUS.OK).json(
+    createSuccessResponse({ message: 'Welcome to Infinite 7 Impex API' }, 'API is running')
+  );
 });
 
 app.get('/health', (_req, res) => {
@@ -28,16 +32,8 @@ app.get('/health', (_req, res) => {
     timestamp: new Date().toISOString(),
     database: db.isConnected() ? 'connected' : 'disconnected'
   };
-  res.json(createSuccessResponse(healthData, 'Health check successful'));
+  res.status(HTTP_STATUS.OK).json(createSuccessResponse(healthData, 'Health check successful'));
 });
-
-// 404 handler (must be after all routes)
-app.use((_req, res) => {
-  res.status(404).json(createNotFoundResponse('Route not found'));
-});
-
-// Error handling middleware (must be last)
-app.use(errorHandler);
 
 // Initialize application
 async function startServer() {
@@ -49,13 +45,25 @@ async function startServer() {
     // Initialize dependency injection
     initializeDI();
 
-    // Routes will be registered here when services are implemented
+    // Register routes
+    const customerController = container.resolve<CustomerController>('customerController');
+    const customerRoutes = createCustomerRoutes(customerController);
+    app.use('/customers', customerRoutes);
+    app.use('/api/customers', customerRoutes);
+
+    // 404 handler (must be after all routes)
+    app.use((_req, res) => {
+      res.status(HTTP_STATUS.NOT_FOUND).json(createNotFoundResponse('Route not found'));
+    });
+
+    // Error handling middleware (must be last)
+    app.use(errorHandler);
 
     // Start server
     app.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);
       console.log(`Health check available at http://localhost:${PORT}/health`);
-      console.log(`API available at http://localhost:${PORT}/api`);
+      console.log(`Customer API available at http://localhost:${PORT}/customers`);
     });
 
   } catch (error) {
