@@ -7,6 +7,8 @@ const express_1 = __importDefault(require("express"));
 const config_1 = require("./config");
 const database_1 = require("./config/database");
 const di_1 = require("./di");
+const error_handler_1 = require("./middleware/error-handler");
+const response_helpers_1 = require("./utils/response-helpers");
 // Load environment variables
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
@@ -15,34 +17,25 @@ const PORT = config_1.config.port;
 // Middleware
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: true }));
-// Error handling middleware
-app.use((err, _req, res, _next) => {
-    console.error('Error:', err);
-    if (err.message.includes('not found')) {
-        res.status(404).json({ error: err.message });
-    }
-    else if (err.message.includes('Validation error')) {
-        res.status(400).json({ error: err.message });
-    }
-    else if (err.message.includes('already exists')) {
-        res.status(409).json({ error: err.message });
-    }
-    else {
-        res.status(500).json({ error: err.message || 'Internal server error' });
-    }
-});
 // Basic routes
 app.get('/', (_req, res) => {
-    res.json({ message: 'Welcome to Infinite 7 Impex API' });
+    res.json((0, response_helpers_1.createSuccessResponse)({ message: 'Welcome to Infinite 7 Impex API' }, 'API is running'));
 });
 app.get('/health', (_req, res) => {
     const db = database_1.Database.getInstance();
-    res.json({
+    const healthData = {
         status: 'ok',
         timestamp: new Date().toISOString(),
         database: db.isConnected() ? 'connected' : 'disconnected'
-    });
+    };
+    res.json((0, response_helpers_1.createSuccessResponse)(healthData, 'Health check successful'));
 });
+// 404 handler (must be after all routes)
+app.use((_req, res) => {
+    res.status(404).json((0, response_helpers_1.createNotFoundResponse)('Route not found'));
+});
+// Error handling middleware (must be last)
+app.use(error_handler_1.errorHandler);
 // Initialize application
 async function startServer() {
     try {

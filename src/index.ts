@@ -1,7 +1,9 @@
-import express, { Request, Response, NextFunction } from 'express';
+import express from 'express';
 import { config } from './config';
 import { Database } from './config/database';
 import { initializeDI } from './di';
+import { errorHandler } from './middleware/error-handler';
+import { createSuccessResponse, createNotFoundResponse } from './utils/response-helpers';
 
 // Load environment variables
 import dotenv from 'dotenv';
@@ -14,34 +16,28 @@ const PORT = config.port;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Error handling middleware
-app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
-  console.error('Error:', err);
-  
-  if (err.message.includes('not found')) {
-    res.status(404).json({ error: err.message });
-  } else if (err.message.includes('Validation error')) {
-    res.status(400).json({ error: err.message });
-  } else if (err.message.includes('already exists')) {
-    res.status(409).json({ error: err.message });
-  } else {
-    res.status(500).json({ error: err.message || 'Internal server error' });
-  }
-});
-
 // Basic routes
-app.get('/', (_req: Request, res: Response) => {
-  res.json({ message: 'Welcome to Infinite 7 Impex API' });
+app.get('/', (_req, res) => {
+  res.json(createSuccessResponse({ message: 'Welcome to Infinite 7 Impex API' }, 'API is running'));
 });
 
-app.get('/health', (_req: Request, res: Response) => {
+app.get('/health', (_req, res) => {
   const db = Database.getInstance();
-  res.json({ 
+  const healthData = { 
     status: 'ok', 
     timestamp: new Date().toISOString(),
     database: db.isConnected() ? 'connected' : 'disconnected'
-  });
+  };
+  res.json(createSuccessResponse(healthData, 'Health check successful'));
 });
+
+// 404 handler (must be after all routes)
+app.use((_req, res) => {
+  res.status(404).json(createNotFoundResponse('Route not found'));
+});
+
+// Error handling middleware (must be last)
+app.use(errorHandler);
 
 // Initialize application
 async function startServer() {
