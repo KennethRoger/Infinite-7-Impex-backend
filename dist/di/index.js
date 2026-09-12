@@ -15,10 +15,12 @@ const customer_service_1 = require("../services/customer.service");
 const auth_service_1 = require("../services/auth.service");
 const product_category_service_1 = require("../services/product-category.service");
 const product_service_1 = require("../services/product.service");
+const blog_service_1 = require("../services/blog.service");
 const customer_controller_1 = require("../controllers/customer.controller");
 const auth_controller_1 = require("../controllers/auth.controller");
 const product_category_controller_1 = require("../controllers/product-category.controller");
 const product_controller_1 = require("../controllers/product.controller");
+const blog_controller_1 = require("../controllers/blog.controller");
 function initializeDI() {
     container_1.container.register('database', () => database_1.Database.getInstance(), true);
     // Repositories
@@ -62,6 +64,10 @@ function initializeDI() {
         const productCategoryRepository = container_1.container.resolve('productCategoryRepository');
         return new product_service_1.ProductService(productRepository, productCategoryRepository);
     }, true);
+    container_1.container.register('blogService', () => {
+        const blogRepository = container_1.container.resolve('blogRepository');
+        return new blog_service_1.BlogService(blogRepository);
+    }, true);
     // Controllers
     container_1.container.register('customerController', () => {
         const customerService = container_1.container.resolve('customerService');
@@ -78,6 +84,10 @@ function initializeDI() {
     container_1.container.register('productController', () => {
         const productService = container_1.container.resolve('productService');
         return new product_controller_1.ProductController(productService);
+    }, true);
+    container_1.container.register('blogController', () => {
+        const blogService = container_1.container.resolve('blogService');
+        return new blog_controller_1.BlogController(blogService);
     }, true);
 }
 //# sourceMappingURL=index.js.map

@@ -8,13 +8,13 @@ A TypeScript Node.js backend server with MongoDB integration, following a reposi
 ```
 src/
 ├── config/          # Configuration files (database, app config, mail, JWT, rate limiting)
-├── controllers/     # HTTP request handlers (Auth, Customer, ProductCategory, Product)
+├── controllers/     # HTTP request handlers (Auth, Customer, ProductCategory, Product, Blog)
 ├── di/              # Dependency injection container
 ├── middleware/      # Global error handling, JWT auth, and rate limiting
 ├── models/          # Zod schemas, DTOs, and TypeScript types
 ├── repositories/    # Data access layer (MongoDB operations)
 ├── routes/          # Express route definitions
-├── services/        # Business logic layer (Auth, Customer, Email, ProductCategory, Product)
+├── services/        # Business logic layer (Auth, Customer, Email, ProductCategory, Product, Blog)
 ├── types/           # Common TypeScript interfaces, HTTP status codes, error codes
 └── index.ts         # Application entry point & middleware wiring
 ```
@@ -159,6 +159,23 @@ npm run dev:watch  # Run with auto-reload on file changes
 - `PUT /api/products/:id` (or `/products/:id`) - Update product fields (name, description, images, category)
   - Validates referenced category existence if `category` field is provided in the update
 - `DELETE /api/products/:id` (or `/products/:id`) - Remove product by ID from database (returns `{ _id, isRemoved: true }`)
+
+### Blogs
+
+#### 1. User-Side / Public Blog Endpoints (SEO Friendly)
+- `GET /api/blogs` (or `/blogs`) - List blog posts (sections omitted for lightweight payload):
+  - `page`: Page number (default: `1`)
+  - `limit`: Items per page (default: `10`)
+  - `sortBy`: Field to sort by (default: `createdAt`)
+  - `sortOrder`: `'asc'` or `'desc'` (default: `'desc'`)
+  - `title`: Filter by blog title (case-insensitive substring)
+  - `paginated`: If `'true'`, returns full pagination metadata object
+- `GET /api/blogs/:id` (or `/blogs/:id`) - Get single blog post with full embedded sections
+
+#### 2. Admin Blog Management (Requires `Authorization: Bearer <token>`)
+- `POST /api/blogs` (or `/blogs`) - Create blog post (title: min 1, max 150 chars; description: required; optional image; sections: array with min 1 section)
+- `PUT /api/blogs/:id` (or `/blogs/:id`) - Update blog post fields (any subset of title, description, image, sections)
+- `DELETE /api/blogs/:id` (or `/blogs/:id`) - Delete blog post by ID from database (returns `data: null`)
 
 ## Response Envelope Format
 

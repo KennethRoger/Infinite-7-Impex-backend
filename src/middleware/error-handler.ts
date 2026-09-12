@@ -22,6 +22,20 @@ export class AppError extends Error {
   }
 }
 
+function formatZodPath(path: (string | number | symbol)[]): string {
+  return path.reduce<string>((acc, segment, idx) => {
+    const isIndex =
+      typeof segment === 'number' || (typeof segment === 'string' && /^\d+$/.test(segment));
+    if (idx === 0) {
+      return segment.toString();
+    }
+    if (isIndex) {
+      return `${acc}[${segment}]`;
+    }
+    return `${acc}.${segment.toString()}`;
+  }, '');
+}
+
 export function errorHandler(
   err: Error | AppError | ZodError,
   _req: Request,
@@ -33,7 +47,7 @@ export function errorHandler(
   // Handle Zod validation errors
   if (err instanceof ZodError) {
     const details: ErrorDetail[] = err.issues.map((issue) => ({
-      field: issue.path.join('.'),
+      field: formatZodPath(issue.path),
       message: issue.message,
     }));
     

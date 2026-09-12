@@ -130,17 +130,29 @@ Represents products with category references, image galleries, and populated cat
 ---
 
 ### Blog
-Represents blog posts with embedded sections for structured content.
+Represents blog posts with embedded sections for structured SEO-optimized content.
 
 **Schema:**
 ```typescript
 {
-  title: string (required, 1-200 characters)
+  title: string (required, 1-150 characters)
   description: string (required)
-  image: string (optional, URL)
-  sections: BlogSection[] (array of embedded documents, default: [])
+  image: string (optional, valid URL)
+  sections: BlogSection[] (required array of embedded documents, min 1 section)
   createdAt: Date (auto-generated)
   updatedAt: Date (auto-generated)
+}
+```
+
+**BlogSummary (Projection for List View):**
+```typescript
+{
+  _id: string
+  title: string
+  description: string
+  image?: string
+  createdAt?: Date
+  updatedAt?: Date
 }
 ```
 
@@ -153,6 +165,7 @@ Represents blog posts with embedded sections for structured content.
 ```
 
 **Repository Methods:**
+- `findFiltered(filters, pagination, sort)` - Find blog posts filtered by title with pagination and sorting
 - `findByTitle(title)` - Find blog by exact title
 - `searchByTitle(searchTerm)` - Search blogs by title (case-insensitive)
 - `addSection(blogId, section)` - Add a section to a blog
@@ -182,8 +195,8 @@ All repositories extend from `BaseRepository<T>` which provides standard CRUD op
 All repositories, services, and controllers are registered in the DI container in [src/di/index.ts](file:///home/kenneth/Work/Projects/Infinite%207%20Impex%20-%20code/server/src/di/index.ts):
 
 - Repositories: `adminRepository`, `customerRepository`, `productCategoryRepository`, `productRepository`, `blogRepository`
-- Services: `authService`, `customerService`, `emailService`, `productCategoryService`, `productService`
-- Controllers: `authController`, `customerController`, `productCategoryController`, `productController`
+- Services: `authService`, `customerService`, `emailService`, `productCategoryService`, `productService`, `blogService`
+- Controllers: `authController`, `customerController`, `productCategoryController`, `productController`, `blogController`
 
 ## Database Collections
 

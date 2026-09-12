@@ -10,10 +10,12 @@ import { CustomerService } from '../services/customer.service';
 import { AuthService } from '../services/auth.service';
 import { ProductCategoryService } from '../services/product-category.service';
 import { ProductService } from '../services/product.service';
+import { BlogService } from '../services/blog.service';
 import { CustomerController } from '../controllers/customer.controller';
 import { AuthController } from '../controllers/auth.controller';
 import { ProductCategoryController } from '../controllers/product-category.controller';
 import { ProductController } from '../controllers/product.controller';
+import { BlogController } from '../controllers/blog.controller';
 
 export function initializeDI() {
   container.register('database', () => Database.getInstance(), true);
@@ -73,6 +75,11 @@ export function initializeDI() {
     return new ProductService(productRepository, productCategoryRepository);
   }, true);
 
+  container.register('blogService', () => {
+    const blogRepository = container.resolve<BlogRepository>('blogRepository');
+    return new BlogService(blogRepository);
+  }, true);
+
   // Controllers
   container.register('customerController', () => {
     const customerService = container.resolve<CustomerService>('customerService');
@@ -94,6 +101,11 @@ export function initializeDI() {
   container.register('productController', () => {
     const productService = container.resolve<ProductService>('productService');
     return new ProductController(productService);
+  }, true);
+
+  container.register('blogController', () => {
+    const blogService = container.resolve<BlogService>('blogService');
+    return new BlogController(blogService);
   }, true);
 }
 

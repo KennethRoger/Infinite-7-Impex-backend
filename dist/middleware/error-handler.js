@@ -16,12 +16,24 @@ class AppError extends Error {
     }
 }
 exports.AppError = AppError;
+function formatZodPath(path) {
+    return path.reduce((acc, segment, idx) => {
+        const isIndex = typeof segment === 'number' || (typeof segment === 'string' && /^\d+$/.test(segment));
+        if (idx === 0) {
+            return segment.toString();
+        }
+        if (isIndex) {
+            return `${acc}[${segment}]`;
+        }
+        return `${acc}.${segment.toString()}`;
+    }, '');
+}
 function errorHandler(err, _req, res, _next) {
     console.error('Error:', err);
     // Handle Zod validation errors
     if (err instanceof zod_1.ZodError) {
         const details = err.issues.map((issue) => ({
-            field: issue.path.join('.'),
+            field: formatZodPath(issue.path),
             message: issue.message,
         }));
         res.status(http_status_1.HTTP_STATUS.BAD_REQUEST).json((0, response_helpers_1.createValidationErrorResponse)(details));

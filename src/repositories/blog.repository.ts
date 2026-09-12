@@ -1,6 +1,11 @@
 import { Db, WithId, ObjectId } from 'mongodb';
 import { BaseRepository } from './base.repository';
-import { Blog } from '../models/blog.model';
+import { Blog, BlogQueryFilters } from '../models/blog.model';
+import { PaginationOptions, PaginatedResult, SortOptions } from '../types/common';
+
+function escapeRegex(text: string): string {
+  return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+}
 
 export class BlogRepository extends BaseRepository<Blog> {
   constructor(db: Db) {
@@ -12,10 +17,27 @@ export class BlogRepository extends BaseRepository<Blog> {
   }
 
   async searchByTitle(searchTerm: string): Promise<WithId<Blog>[]> {
-    const result = await this.findMany({ 
-      title: { $regex: searchTerm, $options: 'i' } 
+    const result = await this.findMany({
+      title: { $regex: escapeRegex(searchTerm), $options: 'i' },
     });
     return result.data;
+  }
+
+  async findFiltered(
+    filters: BlogQueryFilters = {},
+    pagination?: PaginationOptions,
+    sort?: SortOptions
+  ): Promise<PaginatedResult<WithId<Blog>>> {
+    const mongoFilter: Record<string, unknown> = {};
+
+    if (filters.title && filters.title.trim() !== '') {
+      mongoFilter['title'] = {
+        $regex: escapeRegex(filters.title.trim()),
+        $options: 'i',
+      };
+    }
+
+    return this.findMany(mongoFilter, pagination, sort);
   }
 
   async addSection(blogId: string, section: any): Promise<WithId<Blog> | null> {

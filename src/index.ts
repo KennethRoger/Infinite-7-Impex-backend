@@ -16,6 +16,8 @@ import { ProductCategoryController } from './controllers/product-category.contro
 import { createProductCategoryRoutes } from './routes/product-category.routes';
 import { ProductController } from './controllers/product.controller';
 import { createProductRoutes } from './routes/product.routes';
+import { BlogController } from './controllers/blog.controller';
+import { createBlogRoutes } from './routes/blog.routes';
 import { AuthService } from './services/auth.service';
 import { HTTP_STATUS } from './types/http-status';
 
@@ -81,6 +83,11 @@ async function startServer() {
     app.use('/products', productRoutes);
     app.use('/api/products', productRoutes);
 
+    const blogController = container.resolve<BlogController>('blogController');
+    const blogRoutes = createBlogRoutes(blogController);
+    app.use('/blogs', blogRoutes);
+    app.use('/api/blogs', blogRoutes);
+
     // 404 handler (must be after all routes)
     app.use((_req, res) => {
       res.status(HTTP_STATUS.NOT_FOUND).json(createNotFoundResponse('Route not found'));
@@ -97,6 +104,7 @@ async function startServer() {
       console.log(`Customer API available at http://localhost:${PORT}/customers`);
       console.log(`Categories API available at http://localhost:${PORT}/categories`);
       console.log(`Products API available at http://localhost:${PORT}/products`);
+      console.log(`Blogs API available at http://localhost:${PORT}/blogs`);
     });
 
   } catch (error) {
