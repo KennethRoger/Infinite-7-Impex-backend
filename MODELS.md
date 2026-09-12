@@ -86,22 +86,40 @@ Represents product categories with hierarchical organization.
 ---
 
 ### Product
-Represents products with category references and image galleries.
+Represents products with category references, image galleries, and populated category projections.
 
 **Schema:**
 ```typescript
 {
-  name: string (required, 1-200 characters)
+  name: string (required, min 1 character)
   description: string (optional)
-  images: string[] (array of URLs, default: [])
-  category: string (required, ObjectId reference to ProductCategory)
+  images: string[] (required array of valid URLs, min 1 item)
+  category: string (required, 24-hex ObjectId reference to ProductCategory)
   isRemoved: boolean (default: false)
   createdAt: Date (auto-generated)
   updatedAt: Date (auto-generated)
 }
 ```
 
+**Populated Product (Projection):**
+```typescript
+{
+  _id: string
+  name: string
+  description?: string
+  images: string[]
+  category: {
+    _id: string
+    name: string
+  }
+  isRemoved: boolean
+  createdAt: Date
+  updatedAt: Date
+}
+```
+
 **Repository Methods:**
+- `findFiltered(filters, pagination, sort)` - Filter active products by `category` and `name` with pagination and sorting
 - `findByCategory(categoryId)` - Get products by category
 - `findActive()` - Get all non-removed products
 - `findActiveByCategory(categoryId)` - Get active products by category
@@ -164,8 +182,8 @@ All repositories extend from `BaseRepository<T>` which provides standard CRUD op
 All repositories, services, and controllers are registered in the DI container in [src/di/index.ts](file:///home/kenneth/Work/Projects/Infinite%207%20Impex%20-%20code/server/src/di/index.ts):
 
 - Repositories: `adminRepository`, `customerRepository`, `productCategoryRepository`, `productRepository`, `blogRepository`
-- Services: `authService`, `customerService`, `emailService`
-- Controllers: `authController`, `customerController`
+- Services: `authService`, `customerService`, `emailService`, `productCategoryService`, `productService`
+- Controllers: `authController`, `customerController`, `productCategoryController`, `productController`
 
 ## Database Collections
 

@@ -8,6 +8,7 @@ export declare const ERROR_CODES: {
     readonly BAD_REQUEST: 'BAD_REQUEST';
     readonly CONFLICT: 'CONFLICT';
     readonly TOO_MANY_REQUESTS: 'TOO_MANY_REQUESTS';
+    readonly INVALID_REFERENCE: 'INVALID_REFERENCE';
 };
 export type ErrorCode = typeof ERROR_CODES[keyof typeof ERROR_CODES];
 //# sourceMappingURL=error-codes.d.ts.map

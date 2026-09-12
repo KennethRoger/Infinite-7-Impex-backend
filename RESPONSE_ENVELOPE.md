@@ -40,6 +40,7 @@ The following error codes are defined in [src/types/error-codes.ts](file:///home
 - `VALIDATION_ERROR` - Input validation failed
 - `NOT_FOUND` - Resource not found
 - `DUPLICATE_ENTRY` - Duplicate entry conflict
+- `INVALID_REFERENCE` - Referenced entity does not exist (e.g., non-existent category in product creation/update)
 - `SERVER_ERROR` - Internal server error
 - `UNAUTHORIZED` - Authentication required or invalid/expired token
 - `FORBIDDEN` - Access denied

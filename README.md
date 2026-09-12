@@ -8,13 +8,13 @@ A TypeScript Node.js backend server with MongoDB integration, following a reposi
 ```
 src/
 ├── config/          # Configuration files (database, app config, mail, JWT, rate limiting)
-├── controllers/     # HTTP request handlers (Auth, Customer)
+├── controllers/     # HTTP request handlers (Auth, Customer, ProductCategory, Product)
 ├── di/              # Dependency injection container
 ├── middleware/      # Global error handling, JWT auth, and rate limiting
 ├── models/          # Zod schemas, DTOs, and TypeScript types
 ├── repositories/    # Data access layer (MongoDB operations)
 ├── routes/          # Express route definitions
-├── services/        # Business logic layer (Auth, Customer, Email)
+├── services/        # Business logic layer (Auth, Customer, Email, ProductCategory, Product)
 ├── types/           # Common TypeScript interfaces, HTTP status codes, error codes
 └── index.ts         # Application entry point & middleware wiring
 ```
@@ -139,6 +139,26 @@ npm run dev:watch  # Run with auto-reload on file changes
 - `POST /api/categories` (or `/categories`) - Create category (name: 2-50 chars, optional description, optional valid image URL)
 - `PUT /api/categories/:id` (or `/categories/:id`) - Update category fields (name, description, image)
 - `DELETE /api/categories/:id` (or `/categories/:id`) - Remove category by ID
+
+### Products
+
+#### 1. User-Side / Public Product Endpoints
+- `GET /api/products` (or `/products`) - List all active products with populated category (`category: { _id, name }`):
+  - `page`: Page number (default: `1`)
+  - `limit`: Items per page (default: `10`)
+  - `sortBy`: Field to sort by (default: `createdAt`)
+  - `sortOrder`: `'asc'` or `'desc'` (default: `'desc'`)
+  - `category`: Filter by category ObjectId
+  - `name`: Filter by product name (case-insensitive substring)
+  - `paginated`: If `'true'`, returns full pagination metadata object
+- `GET /api/products/:id` (or `/products/:id`) - Get single active product by ID with populated category (`category: { _id, name }`)
+
+#### 2. Admin Product Management (Requires `Authorization: Bearer <token>`)
+- `POST /api/products` (or `/products`) - Create product (name: min 1 char, images: min 1 URL, category: valid category ObjectId, optional description)
+  - Validates that the referenced category exists and is not removed; returns 400 `INVALID_REFERENCE` if category is not found
+- `PUT /api/products/:id` (or `/products/:id`) - Update product fields (name, description, images, category)
+  - Validates referenced category existence if `category` field is provided in the update
+- `DELETE /api/products/:id` (or `/products/:id`) - Remove product by ID from database (returns `{ _id, isRemoved: true }`)
 
 ## Response Envelope Format
 

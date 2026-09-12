@@ -11,5 +11,6 @@ exports.ERROR_CODES = {
     BAD_REQUEST: 'BAD_REQUEST',
     CONFLICT: 'CONFLICT',
     TOO_MANY_REQUESTS: 'TOO_MANY_REQUESTS',
+    INVALID_REFERENCE: 'INVALID_REFERENCE',
 };
 //# sourceMappingURL=error-codes.js.map

@@ -14,6 +14,8 @@ import { AuthController } from './controllers/auth.controller';
 import { createAuthRoutes } from './routes/auth.routes';
 import { ProductCategoryController } from './controllers/product-category.controller';
 import { createProductCategoryRoutes } from './routes/product-category.routes';
+import { ProductController } from './controllers/product.controller';
+import { createProductRoutes } from './routes/product.routes';
 import { AuthService } from './services/auth.service';
 import { HTTP_STATUS } from './types/http-status';
 
@@ -74,6 +76,11 @@ async function startServer() {
     app.use('/categories', categoryRoutes);
     app.use('/api/categories', categoryRoutes);
 
+    const productController = container.resolve<ProductController>('productController');
+    const productRoutes = createProductRoutes(productController);
+    app.use('/products', productRoutes);
+    app.use('/api/products', productRoutes);
+
     // 404 handler (must be after all routes)
     app.use((_req, res) => {
       res.status(HTTP_STATUS.NOT_FOUND).json(createNotFoundResponse('Route not found'));
@@ -89,6 +96,7 @@ async function startServer() {
       console.log(`Auth API available at http://localhost:${PORT}/auth`);
       console.log(`Customer API available at http://localhost:${PORT}/customers`);
       console.log(`Categories API available at http://localhost:${PORT}/categories`);
+      console.log(`Products API available at http://localhost:${PORT}/products`);
     });
 
   } catch (error) {

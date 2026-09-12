@@ -9,9 +9,11 @@ import { EmailService } from '../services/email.service';
 import { CustomerService } from '../services/customer.service';
 import { AuthService } from '../services/auth.service';
 import { ProductCategoryService } from '../services/product-category.service';
+import { ProductService } from '../services/product.service';
 import { CustomerController } from '../controllers/customer.controller';
 import { AuthController } from '../controllers/auth.controller';
 import { ProductCategoryController } from '../controllers/product-category.controller';
+import { ProductController } from '../controllers/product.controller';
 
 export function initializeDI() {
   container.register('database', () => Database.getInstance(), true);
@@ -63,6 +65,14 @@ export function initializeDI() {
     return new ProductCategoryService(productCategoryRepository);
   }, true);
 
+  container.register('productService', () => {
+    const productRepository = container.resolve<ProductRepository>('productRepository');
+    const productCategoryRepository = container.resolve<ProductCategoryRepository>(
+      'productCategoryRepository'
+    );
+    return new ProductService(productRepository, productCategoryRepository);
+  }, true);
+
   // Controllers
   container.register('customerController', () => {
     const customerService = container.resolve<CustomerService>('customerService');
@@ -79,6 +89,11 @@ export function initializeDI() {
       'productCategoryService'
     );
     return new ProductCategoryController(productCategoryService);
+  }, true);
+
+  container.register('productController', () => {
+    const productService = container.resolve<ProductService>('productService');
+    return new ProductController(productService);
   }, true);
 }
 
