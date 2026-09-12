@@ -124,6 +124,22 @@ npm run dev:watch  # Run with auto-reload on file changes
 - `PATCH /api/customers/:id/priority` - Update customer priority (`high`, `low`, `medium`, `unset`)
 - `DELETE /api/customers/:id` - Delete customer by MongoDB ObjectId
 
+### Product Categories
+
+#### 1. User-Side / Public Category Endpoints
+- `GET /api/categories` (or `/categories`) - List all active categories:
+  - `page`: Page number (default: `1`)
+  - `limit`: Items per page (default: `10`)
+  - `sortBy`: Field to sort by (default: `createdAt`)
+  - `sortOrder`: `'asc'` or `'desc'` (default: `'desc'`)
+  - `name`: Filter by category name (case-insensitive substring)
+- `GET /api/categories/:id` (or `/categories/:id`) - Get single category by ID
+
+#### 2. Admin Category Management (Requires `Authorization: Bearer <token>`)
+- `POST /api/categories` (or `/categories`) - Create category (name: 2-50 chars, optional description, optional valid image URL)
+- `PUT /api/categories/:id` (or `/categories/:id`) - Update category fields (name, description, image)
+- `DELETE /api/categories/:id` (or `/categories/:id`) - Remove category by ID
+
 ## Response Envelope Format
 
 All responses follow a consistent standard:

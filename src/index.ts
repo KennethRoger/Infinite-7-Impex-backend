@@ -12,6 +12,8 @@ import { CustomerController } from './controllers/customer.controller';
 import { createCustomerRoutes } from './routes/customer.routes';
 import { AuthController } from './controllers/auth.controller';
 import { createAuthRoutes } from './routes/auth.routes';
+import { ProductCategoryController } from './controllers/product-category.controller';
+import { createProductCategoryRoutes } from './routes/product-category.routes';
 import { AuthService } from './services/auth.service';
 import { HTTP_STATUS } from './types/http-status';
 
@@ -65,6 +67,13 @@ async function startServer() {
     app.use('/customers', customerRoutes);
     app.use('/api/customers', customerRoutes);
 
+    const productCategoryController = container.resolve<ProductCategoryController>(
+      'productCategoryController'
+    );
+    const categoryRoutes = createProductCategoryRoutes(productCategoryController);
+    app.use('/categories', categoryRoutes);
+    app.use('/api/categories', categoryRoutes);
+
     // 404 handler (must be after all routes)
     app.use((_req, res) => {
       res.status(HTTP_STATUS.NOT_FOUND).json(createNotFoundResponse('Route not found'));
@@ -79,6 +88,7 @@ async function startServer() {
       console.log(`Health check available at http://localhost:${PORT}/health`);
       console.log(`Auth API available at http://localhost:${PORT}/auth`);
       console.log(`Customer API available at http://localhost:${PORT}/customers`);
+      console.log(`Categories API available at http://localhost:${PORT}/categories`);
     });
 
   } catch (error) {

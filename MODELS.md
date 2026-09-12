@@ -66,9 +66,9 @@ Represents product categories with hierarchical organization.
 **Schema:**
 ```typescript
 {
-  name: string (required, 1-100 characters)
+  name: string (required, 2-50 characters)
   description: string (optional)
-  image: string (optional, URL)
+  image: string (optional, valid URL)
   isRemoved: boolean (default: false)
   createdAt: Date (auto-generated)
   updatedAt: Date (auto-generated)
@@ -77,7 +77,8 @@ Represents product categories with hierarchical organization.
 
 **Repository Methods:**
 - `findActive()` - Get all non-removed categories
-- `findByName(name)` - Find category by name
+- `findByName(name)` - Find category by name (case-insensitive)
+- `findFiltered(filters, pagination, sort)` - Find active categories filtered by name with pagination and sorting
 - Standard CRUD operations from BaseRepository
 
 **File:** [product-category.model.ts](file:///home/kenneth/Work/Projects/Infinite%207%20Impex%20-%20code/server/src/models/product-category.model.ts)

@@ -6,7 +6,7 @@ export interface IRepository<T> {
   findOne(filter: Record<string, unknown>): Promise<WithId<T> | null>;
   findMany(filter?: Record<string, unknown>, pagination?: PaginationOptions, sort?: SortOptions): Promise<PaginatedResult<WithId<T>>>;
   create(data: T): Promise<WithId<T>>;
-  update(id: string, data: Partial<T>): Promise<WithId<T> | null>;
+  update(id: string, data: { [P in keyof T]?: T[P] | undefined }): Promise<WithId<T> | null>;
   delete(id: string): Promise<boolean>;
   count(filter?: Record<string, unknown>): Promise<number>;
 }
@@ -83,7 +83,7 @@ export abstract class BaseRepository<T> implements IRepository<T> {
     return created as WithId<T>;
   }
 
-  async update(id: string, data: Partial<T>): Promise<WithId<T> | null> {
+  async update(id: string, data: { [P in keyof T]?: T[P] | undefined }): Promise<WithId<T> | null> {
     const collection = this.getCollection();
     const updateData = {
       $set: {

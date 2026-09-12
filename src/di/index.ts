@@ -8,8 +8,10 @@ import { AdminRepository } from '../repositories/admin.repository';
 import { EmailService } from '../services/email.service';
 import { CustomerService } from '../services/customer.service';
 import { AuthService } from '../services/auth.service';
+import { ProductCategoryService } from '../services/product-category.service';
 import { CustomerController } from '../controllers/customer.controller';
 import { AuthController } from '../controllers/auth.controller';
+import { ProductCategoryController } from '../controllers/product-category.controller';
 
 export function initializeDI() {
   container.register('database', () => Database.getInstance(), true);
@@ -54,6 +56,13 @@ export function initializeDI() {
     return new AuthService(adminRepository);
   }, true);
 
+  container.register('productCategoryService', () => {
+    const productCategoryRepository = container.resolve<ProductCategoryRepository>(
+      'productCategoryRepository'
+    );
+    return new ProductCategoryService(productCategoryRepository);
+  }, true);
+
   // Controllers
   container.register('customerController', () => {
     const customerService = container.resolve<CustomerService>('customerService');
@@ -63,6 +72,13 @@ export function initializeDI() {
   container.register('authController', () => {
     const authService = container.resolve<AuthService>('authService');
     return new AuthController(authService);
+  }, true);
+
+  container.register('productCategoryController', () => {
+    const productCategoryService = container.resolve<ProductCategoryService>(
+      'productCategoryService'
+    );
+    return new ProductCategoryController(productCategoryService);
   }, true);
 }
 

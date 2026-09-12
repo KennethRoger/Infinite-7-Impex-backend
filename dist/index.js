@@ -14,6 +14,7 @@ const rate_limiter_1 = require("./middleware/rate-limiter");
 const response_helpers_1 = require("./utils/response-helpers");
 const customer_routes_1 = require("./routes/customer.routes");
 const auth_routes_1 = require("./routes/auth.routes");
+const product_category_routes_1 = require("./routes/product-category.routes");
 const http_status_1 = require("./types/http-status");
 const app = (0, express_1.default)();
 const PORT = config_1.config.port;
@@ -54,6 +55,10 @@ async function startServer() {
         const customerRoutes = (0, customer_routes_1.createCustomerRoutes)(customerController);
         app.use('/customers', customerRoutes);
         app.use('/api/customers', customerRoutes);
+        const productCategoryController = di_1.container.resolve('productCategoryController');
+        const categoryRoutes = (0, product_category_routes_1.createProductCategoryRoutes)(productCategoryController);
+        app.use('/categories', categoryRoutes);
+        app.use('/api/categories', categoryRoutes);
         // 404 handler (must be after all routes)
         app.use((_req, res) => {
             res.status(http_status_1.HTTP_STATUS.NOT_FOUND).json((0, response_helpers_1.createNotFoundResponse)('Route not found'));
@@ -66,6 +71,7 @@ async function startServer() {
             console.log(`Health check available at http://localhost:${PORT}/health`);
             console.log(`Auth API available at http://localhost:${PORT}/auth`);
             console.log(`Customer API available at http://localhost:${PORT}/customers`);
+            console.log(`Categories API available at http://localhost:${PORT}/categories`);
         });
     }
     catch (error) {
