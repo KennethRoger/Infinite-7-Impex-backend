@@ -8,7 +8,7 @@ exports.ProductCategorySchema = zod_1.z.object({
         .min(2, 'Name is required and must be between 2 and 50 characters')
         .max(50, 'Name is required and must be between 2 and 50 characters'),
     description: zod_1.z.string().optional(),
-    image: zod_1.z.string().url('Image must be a valid URL').optional(),
+    image: zod_1.z.url('Image must be a valid URL').optional(),
     isRemoved: zod_1.z.boolean().default(false),
     createdAt: zod_1.z.date().optional(),
     updatedAt: zod_1.z.date().optional(),

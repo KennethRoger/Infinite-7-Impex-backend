@@ -11,7 +11,6 @@ export interface AuthResult {
 export declare class AuthService {
     private adminRepository;
     constructor(adminRepository: AdminRepository);
-    seedInitialAdmin(): Promise<void>;
     login(dto: AdminLoginDto): Promise<AuthResult>;
     logout(): Promise<void>;
 }

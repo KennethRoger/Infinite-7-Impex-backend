@@ -17,10 +17,6 @@ export declare const config: {
         secret: string;
         expiresIn: string;
     };
-    admin: {
-        email: string;
-        password: string;
-    };
     rateLimit: {
         windowMs: number;
         max: number;

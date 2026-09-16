@@ -3,6 +3,7 @@ import { CustomerService } from '../services/customer.service';
 import {
   CreateCustomerSchema,
   UpdateCustomerPrioritySchema,
+  UpdateCustomerNotesSchema,
   CustomerPriority,
   CustomerQueryFilters,
 } from '../models/customer.model';
@@ -96,6 +97,20 @@ export class CustomerController {
 
       res.status(HTTP_STATUS.OK).json(
         createSuccessResponse(updatedCustomer, 'Customer priority updated successfully')
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async updateNotes(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const id = req.params['id'] as string;
+      const { notes } = UpdateCustomerNotesSchema.parse(req.body);
+      const updatedCustomer = await this.customerService.updateCustomerNotes(id, notes);
+
+      res.status(HTTP_STATUS.OK).json(
+        createSuccessResponse(updatedCustomer, 'Customer notes updated successfully')
       );
     } catch (error) {
       next(error);

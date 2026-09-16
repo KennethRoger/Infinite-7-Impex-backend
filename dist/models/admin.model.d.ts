@@ -1,6 +1,6 @@
 import { z } from 'zod';
 export declare const AdminSchema: z.ZodObject<{
-    email: z.ZodString;
+    email: z.ZodEmail;
     passwordHash: z.ZodString;
     role: z.ZodDefault<z.ZodLiteral<"admin">>;
     createdAt: z.ZodOptional<z.ZodDate>;
@@ -8,7 +8,7 @@ export declare const AdminSchema: z.ZodObject<{
 }, z.core.$strip>;
 export type Admin = z.infer<typeof AdminSchema>;
 export declare const AdminLoginSchema: z.ZodObject<{
-    email: z.ZodString;
+    email: z.ZodEmail;
     password: z.ZodString;
 }, z.core.$strip>;
 export type AdminLoginDto = z.infer<typeof AdminLoginSchema>;

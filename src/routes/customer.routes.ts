@@ -21,6 +21,10 @@ export function createCustomerRoutes(customerController: CustomerController): Ro
     customerController.updatePriority(req, res, next)
   );
 
+  router.patch('/:id/notes', authenticateAdmin, (req, res, next) =>
+    customerController.updateNotes(req, res, next)
+  );
+
   router.delete('/:id', authenticateAdmin, (req, res, next) =>
     customerController.deleteCustomer(req, res, next)
   );

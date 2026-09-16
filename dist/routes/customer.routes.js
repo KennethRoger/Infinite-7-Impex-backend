@@ -11,6 +11,7 @@ function createCustomerRoutes(customerController) {
     router.get('/', auth_middleware_1.authenticateAdmin, (req, res, next) => customerController.getAllCustomers(req, res, next));
     router.get('/:id', auth_middleware_1.authenticateAdmin, (req, res, next) => customerController.getCustomerById(req, res, next));
     router.patch('/:id/priority', auth_middleware_1.authenticateAdmin, (req, res, next) => customerController.updatePriority(req, res, next));
+    router.patch('/:id/notes', auth_middleware_1.authenticateAdmin, (req, res, next) => customerController.updateNotes(req, res, next));
     router.delete('/:id', auth_middleware_1.authenticateAdmin, (req, res, next) => customerController.deleteCustomer(req, res, next));
     return router;
 }

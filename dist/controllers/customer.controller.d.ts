@@ -7,6 +7,7 @@ export declare class CustomerController {
     getAllCustomers(req: Request, res: Response, next: NextFunction): Promise<void>;
     getCustomerById(req: Request, res: Response, next: NextFunction): Promise<void>;
     updatePriority(req: Request, res: Response, next: NextFunction): Promise<void>;
+    updateNotes(req: Request, res: Response, next: NextFunction): Promise<void>;
     deleteCustomer(req: Request, res: Response, next: NextFunction): Promise<void>;
 }
 //# sourceMappingURL=customer.controller.d.ts.map

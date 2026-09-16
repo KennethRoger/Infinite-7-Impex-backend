@@ -6,7 +6,7 @@ export const ProductCategorySchema = z.object({
     .min(2, 'Name is required and must be between 2 and 50 characters')
     .max(50, 'Name is required and must be between 2 and 50 characters'),
   description: z.string().optional(),
-  image: z.string().url('Image must be a valid URL').optional(),
+  image: z.url('Image must be a valid URL').optional(),
   isRemoved: z.boolean().default(false),
   createdAt: z.date().optional(),
   updatedAt: z.date().optional(),

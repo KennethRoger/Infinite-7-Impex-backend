@@ -14,19 +14,6 @@ class AuthService {
     constructor(adminRepository) {
         this.adminRepository = adminRepository;
     }
-    async seedInitialAdmin() {
-        const adminEmail = config_1.config.admin.email;
-        const existingAdmin = await this.adminRepository.findByEmail(adminEmail);
-        if (!existingAdmin) {
-            const passwordHash = await bcryptjs_1.default.hash(config_1.config.admin.password, 10);
-            await this.adminRepository.create({
-                email: adminEmail,
-                passwordHash,
-                role: 'admin',
-            });
-            console.log(`[AuthService] Initial admin account initialized for: ${adminEmail}`);
-        }
-    }
     async login(dto) {
         const admin = await this.adminRepository.findByEmail(dto.email);
         if (!admin) {

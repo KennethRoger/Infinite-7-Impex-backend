@@ -55,6 +55,20 @@ class CustomerService {
         }
         return updatedCustomer;
     }
+    async updateCustomerNotes(id, notes) {
+        if (!mongodb_1.ObjectId.isValid(id)) {
+            throw new error_handler_1.AppError(http_status_1.HTTP_STATUS.NOT_FOUND, error_codes_1.ERROR_CODES.NOT_FOUND, 'Customer not found');
+        }
+        const existingCustomer = await this.customerRepository.findById(id);
+        if (!existingCustomer) {
+            throw new error_handler_1.AppError(http_status_1.HTTP_STATUS.NOT_FOUND, error_codes_1.ERROR_CODES.NOT_FOUND, 'Customer not found');
+        }
+        const updatedCustomer = await this.customerRepository.update(id, { notes });
+        if (!updatedCustomer) {
+            throw new error_handler_1.AppError(http_status_1.HTTP_STATUS.NOT_FOUND, error_codes_1.ERROR_CODES.NOT_FOUND, 'Customer not found');
+        }
+        return updatedCustomer;
+    }
     async deleteCustomer(id) {
         if (!mongodb_1.ObjectId.isValid(id)) {
             throw new error_handler_1.AppError(http_status_1.HTTP_STATUS.NOT_FOUND, error_codes_1.ERROR_CODES.NOT_FOUND, 'Customer not found');

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UpdateCustomerPrioritySchema = exports.UpdateCustomerSchema = exports.CreateCustomerSchema = exports.CustomerSchema = exports.CustomerPriorityEnum = exports.CUSTOMER_PRIORITIES = void 0;
+exports.UpdateCustomerNotesSchema = exports.UpdateCustomerPrioritySchema = exports.UpdateCustomerSchema = exports.CreateCustomerSchema = exports.CustomerSchema = exports.CustomerPriorityEnum = exports.CUSTOMER_PRIORITIES = void 0;
 const zod_1 = require("zod");
 exports.CUSTOMER_PRIORITIES = ['high', 'low', 'medium', 'unset'];
 exports.CustomerPriorityEnum = zod_1.z.enum(exports.CUSTOMER_PRIORITIES);
@@ -29,5 +29,8 @@ exports.UpdateCustomerSchema = exports.CustomerSchema.omit({
 }).partial();
 exports.UpdateCustomerPrioritySchema = zod_1.z.object({
     priority: exports.CustomerPriorityEnum,
+});
+exports.UpdateCustomerNotesSchema = zod_1.z.object({
+    notes: zod_1.z.string(),
 });
 //# sourceMappingURL=customer.model.js.map

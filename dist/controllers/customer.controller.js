@@ -73,6 +73,17 @@ class CustomerController {
             next(error);
         }
     }
+    async updateNotes(req, res, next) {
+        try {
+            const id = req.params['id'];
+            const { notes } = customer_model_1.UpdateCustomerNotesSchema.parse(req.body);
+            const updatedCustomer = await this.customerService.updateCustomerNotes(id, notes);
+            res.status(http_status_1.HTTP_STATUS.OK).json((0, response_helpers_1.createSuccessResponse)(updatedCustomer, 'Customer notes updated successfully'));
+        }
+        catch (error) {
+            next(error);
+        }
+    }
     async deleteCustomer(req, res, next) {
         try {
             const id = req.params['id'];

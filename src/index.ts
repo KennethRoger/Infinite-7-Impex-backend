@@ -18,13 +18,22 @@ import { ProductController } from './controllers/product.controller';
 import { createProductRoutes } from './routes/product.routes';
 import { BlogController } from './controllers/blog.controller';
 import { createBlogRoutes } from './routes/blog.routes';
-import { AuthService } from './services/auth.service';
 import { HTTP_STATUS } from './types/http-status';
 
 const app = express();
 const PORT = config.port;
 
 // Global Middleware
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  if (req.method === 'OPTIONS') {
+    res.sendStatus(200);
+    return;
+  }
+  next();
+});
 app.use(globalRateLimiter);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -55,10 +64,6 @@ async function startServer() {
 
     // Initialize dependency injection
     initializeDI();
-
-    // Seed initial admin if not existing
-    const authService = container.resolve<AuthService>('authService');
-    await authService.seedInitialAdmin();
 
     // Register routes
     const authController = container.resolve<AuthController>('authController');

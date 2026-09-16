@@ -39,6 +39,11 @@ export const UpdateCustomerPrioritySchema = z.object({
 });
 export type UpdateCustomerPriorityDto = z.infer<typeof UpdateCustomerPrioritySchema>;
 
+export const UpdateCustomerNotesSchema = z.object({
+  notes: z.string(),
+});
+export type UpdateCustomerNotesDto = z.infer<typeof UpdateCustomerNotesSchema>;
+
 export interface CustomerQueryFilters {
   fullName?: string;
   email?: string;

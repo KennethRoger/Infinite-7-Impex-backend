@@ -30,4 +30,14 @@ export class AuthController {
       next(error);
     }
   }
+
+  async getMe(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      res.status(HTTP_STATUS.OK).json(
+        createSuccessResponse({ admin: req.user }, 'Admin authenticated')
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
 }

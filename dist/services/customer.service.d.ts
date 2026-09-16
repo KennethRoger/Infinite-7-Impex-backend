@@ -11,6 +11,7 @@ export declare class CustomerService {
     getAllCustomers(filters?: CustomerQueryFilters, pagination?: PaginationOptions, sort?: SortOptions): Promise<PaginatedResult<WithId<Customer>>>;
     getCustomerById(id: string): Promise<WithId<Customer>>;
     updateCustomerPriority(id: string, priority: CustomerPriority): Promise<WithId<Customer>>;
+    updateCustomerNotes(id: string, notes: string): Promise<WithId<Customer>>;
     deleteCustomer(id: string): Promise<boolean>;
 }
 //# sourceMappingURL=customer.service.d.ts.map

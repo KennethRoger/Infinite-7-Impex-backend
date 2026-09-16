@@ -21,6 +21,16 @@ const http_status_1 = require("./types/http-status");
 const app = (0, express_1.default)();
 const PORT = config_1.config.port;
 // Global Middleware
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+    if (req.method === 'OPTIONS') {
+        res.sendStatus(200);
+        return;
+    }
+    next();
+});
 app.use(rate_limiter_1.globalRateLimiter);
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: true }));
@@ -45,9 +55,6 @@ async function startServer() {
         await database.connect(config_1.config.mongo.connectionString, config_1.config.mongo.dbName);
         // Initialize dependency injection
         (0, di_1.initializeDI)();
-        // Seed initial admin if not existing
-        const authService = di_1.container.resolve('authService');
-        await authService.seedInitialAdmin();
         // Register routes
         const authController = di_1.container.resolve('authController');
         const authRoutes = (0, auth_routes_1.createAuthRoutes)(authController);

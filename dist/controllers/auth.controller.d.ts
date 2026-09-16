@@ -5,5 +5,6 @@ export declare class AuthController {
     constructor(authService: AuthService);
     login(req: Request, res: Response, next: NextFunction): Promise<void>;
     logout(_req: Request, res: Response, next: NextFunction): Promise<void>;
+    getMe(req: Request, res: Response, next: NextFunction): Promise<void>;
 }
 //# sourceMappingURL=auth.controller.d.ts.map

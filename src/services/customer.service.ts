@@ -72,6 +72,24 @@ export class CustomerService {
     return updatedCustomer;
   }
 
+  async updateCustomerNotes(id: string, notes: string): Promise<WithId<Customer>> {
+    if (!ObjectId.isValid(id)) {
+      throw new AppError(HTTP_STATUS.NOT_FOUND, ERROR_CODES.NOT_FOUND, 'Customer not found');
+    }
+
+    const existingCustomer = await this.customerRepository.findById(id);
+    if (!existingCustomer) {
+      throw new AppError(HTTP_STATUS.NOT_FOUND, ERROR_CODES.NOT_FOUND, 'Customer not found');
+    }
+
+    const updatedCustomer = await this.customerRepository.update(id, { notes });
+    if (!updatedCustomer) {
+      throw new AppError(HTTP_STATUS.NOT_FOUND, ERROR_CODES.NOT_FOUND, 'Customer not found');
+    }
+
+    return updatedCustomer;
+  }
+
   async deleteCustomer(id: string): Promise<boolean> {
     if (!ObjectId.isValid(id)) {
       throw new AppError(HTTP_STATUS.NOT_FOUND, ERROR_CODES.NOT_FOUND, 'Customer not found');

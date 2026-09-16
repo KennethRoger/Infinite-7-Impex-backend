@@ -19,21 +19,6 @@ export interface AuthResult {
 export class AuthService {
   constructor(private adminRepository: AdminRepository) {}
 
-  async seedInitialAdmin(): Promise<void> {
-    const adminEmail = config.admin.email;
-    const existingAdmin = await this.adminRepository.findByEmail(adminEmail);
-
-    if (!existingAdmin) {
-      const passwordHash = await bcryptjs.hash(config.admin.password, 10);
-      await this.adminRepository.create({
-        email: adminEmail,
-        passwordHash,
-        role: 'admin',
-      });
-      console.log(`[AuthService] Initial admin account initialized for: ${adminEmail}`);
-    }
-  }
-
   async login(dto: AdminLoginDto): Promise<AuthResult> {
     const admin = await this.adminRepository.findByEmail(dto.email);
     if (!admin) {

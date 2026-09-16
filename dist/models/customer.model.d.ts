@@ -66,6 +66,10 @@ export declare const UpdateCustomerPrioritySchema: z.ZodObject<{
     }>;
 }, z.core.$strip>;
 export type UpdateCustomerPriorityDto = z.infer<typeof UpdateCustomerPrioritySchema>;
+export declare const UpdateCustomerNotesSchema: z.ZodObject<{
+    notes: z.ZodString;
+}, z.core.$strip>;
+export type UpdateCustomerNotesDto = z.infer<typeof UpdateCustomerNotesSchema>;
 export interface CustomerQueryFilters {
     fullName?: string;
     email?: string;

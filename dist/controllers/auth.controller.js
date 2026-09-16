@@ -27,6 +27,14 @@ class AuthController {
             next(error);
         }
     }
+    async getMe(req, res, next) {
+        try {
+            res.status(http_status_1.HTTP_STATUS.OK).json((0, response_helpers_1.createSuccessResponse)({ admin: req.user }, 'Admin authenticated'));
+        }
+        catch (error) {
+            next(error);
+        }
+    }
 }
 exports.AuthController = AuthController;
 //# sourceMappingURL=auth.controller.js.map
