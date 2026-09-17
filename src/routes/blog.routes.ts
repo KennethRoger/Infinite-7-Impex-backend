@@ -7,8 +7,8 @@ export function createBlogRoutes(blogController: BlogController): Router {
   const router = Router();
 
   // User side / Public routes (SEO friendly)
-  router.get('/', publicCache(120), (req, res, next) => blogController.getAllBlogs(req, res, next));
-  router.get('/:id', publicCache(120), (req, res, next) => blogController.getBlogById(req, res, next));
+  router.get('/', publicCache(15), (req, res, next) => blogController.getAllBlogs(req, res, next));
+  router.get('/:id', publicCache(15), (req, res, next) => blogController.getBlogById(req, res, next));
 
   // Admin routes (Protected by JWT authentication)
   router.post('/', authenticateAdmin, (req, res, next) =>

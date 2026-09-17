@@ -9,11 +9,11 @@ export function createProductCategoryRoutes(
   const router = Router();
 
   // User side / Public routes
-  router.get('/', publicCache(120), (req, res, next) =>
+  router.get('/', publicCache(15), (req, res, next) =>
     productCategoryController.getAllCategories(req, res, next)
   );
 
-  router.get('/:id', publicCache(120), (req, res, next) =>
+  router.get('/:id', publicCache(15), (req, res, next) =>
     productCategoryController.getCategoryById(req, res, next)
   );
 

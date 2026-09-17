@@ -7,7 +7,7 @@ import { Request, Response, NextFunction } from 'express';
  *
  * Requests containing Authorization headers (admin operations) are explicitly NEVER cached.
  */
-export function publicCache(maxAgeSeconds = 120, swrSeconds = 600) {
+export function publicCache(maxAgeSeconds = 15, swrSeconds = 60) {
   return (req: Request, res: Response, next: NextFunction): void => {
     // Only apply public cache to GET requests without an admin Authorization header
     if (req.method === 'GET' && !req.headers['authorization']) {

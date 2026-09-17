@@ -8,7 +8,7 @@ exports.publicCache = publicCache;
  *
  * Requests containing Authorization headers (admin operations) are explicitly NEVER cached.
  */
-function publicCache(maxAgeSeconds = 120, swrSeconds = 600) {
+function publicCache(maxAgeSeconds = 15, swrSeconds = 60) {
     return (req, res, next) => {
         // Only apply public cache to GET requests without an admin Authorization header
         if (req.method === 'GET' && !req.headers['authorization']) {

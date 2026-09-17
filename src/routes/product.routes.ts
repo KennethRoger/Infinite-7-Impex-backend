@@ -7,8 +7,8 @@ export function createProductRoutes(productController: ProductController): Route
   const router = Router();
 
   // User side / Public routes
-  router.get('/', publicCache(120), (req, res, next) => productController.getAllProducts(req, res, next));
-  router.get('/:id', publicCache(120), (req, res, next) => productController.getProductById(req, res, next));
+  router.get('/', publicCache(15), (req, res, next) => productController.getAllProducts(req, res, next));
+  router.get('/:id', publicCache(15), (req, res, next) => productController.getProductById(req, res, next));
 
   // Admin routes (Protected by JWT authentication)
   router.post('/', authenticateAdmin, (req, res, next) =>
