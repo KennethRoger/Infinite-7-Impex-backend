@@ -1,13 +1,14 @@
 import { Router } from 'express';
 import { ProductController } from '../controllers/product.controller';
 import { authenticateAdmin } from '../middleware/auth.middleware';
+import { publicCache } from '../middleware/cache-control';
 
 export function createProductRoutes(productController: ProductController): Router {
   const router = Router();
 
   // User side / Public routes
-  router.get('/', (req, res, next) => productController.getAllProducts(req, res, next));
-  router.get('/:id', (req, res, next) => productController.getProductById(req, res, next));
+  router.get('/', publicCache(120), (req, res, next) => productController.getAllProducts(req, res, next));
+  router.get('/:id', publicCache(120), (req, res, next) => productController.getProductById(req, res, next));
 
   // Admin routes (Protected by JWT authentication)
   router.post('/', authenticateAdmin, (req, res, next) =>

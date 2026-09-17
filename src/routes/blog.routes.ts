@@ -1,13 +1,14 @@
 import { Router } from 'express';
 import { BlogController } from '../controllers/blog.controller';
 import { authenticateAdmin } from '../middleware/auth.middleware';
+import { publicCache } from '../middleware/cache-control';
 
 export function createBlogRoutes(blogController: BlogController): Router {
   const router = Router();
 
   // User side / Public routes (SEO friendly)
-  router.get('/', (req, res, next) => blogController.getAllBlogs(req, res, next));
-  router.get('/:id', (req, res, next) => blogController.getBlogById(req, res, next));
+  router.get('/', publicCache(120), (req, res, next) => blogController.getAllBlogs(req, res, next));
+  router.get('/:id', publicCache(120), (req, res, next) => blogController.getBlogById(req, res, next));
 
   // Admin routes (Protected by JWT authentication)
   router.post('/', authenticateAdmin, (req, res, next) =>

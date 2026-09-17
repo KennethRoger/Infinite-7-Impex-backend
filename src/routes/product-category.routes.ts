@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { ProductCategoryController } from '../controllers/product-category.controller';
 import { authenticateAdmin } from '../middleware/auth.middleware';
+import { publicCache } from '../middleware/cache-control';
 
 export function createProductCategoryRoutes(
   productCategoryController: ProductCategoryController
@@ -8,11 +9,11 @@ export function createProductCategoryRoutes(
   const router = Router();
 
   // User side / Public routes
-  router.get('/', (req, res, next) =>
+  router.get('/', publicCache(120), (req, res, next) =>
     productCategoryController.getAllCategories(req, res, next)
   );
 
-  router.get('/:id', (req, res, next) =>
+  router.get('/:id', publicCache(120), (req, res, next) =>
     productCategoryController.getCategoryById(req, res, next)
   );
 
