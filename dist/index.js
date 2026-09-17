@@ -17,6 +17,7 @@ const auth_routes_1 = require("./routes/auth.routes");
 const product_category_routes_1 = require("./routes/product-category.routes");
 const product_routes_1 = require("./routes/product.routes");
 const blog_routes_1 = require("./routes/blog.routes");
+const upload_routes_1 = require("./routes/upload.routes");
 const http_status_1 = require("./types/http-status");
 const app = (0, express_1.default)();
 const PORT = config_1.config.port;
@@ -76,6 +77,9 @@ async function startServer() {
         const blogRoutes = (0, blog_routes_1.createBlogRoutes)(blogController);
         app.use('/blogs', blogRoutes);
         app.use('/api/blogs', blogRoutes);
+        const uploadRoutes = (0, upload_routes_1.createUploadRoutes)();
+        app.use('/upload', uploadRoutes);
+        app.use('/api/upload', uploadRoutes);
         // 404 handler (must be after all routes)
         app.use((_req, res) => {
             res.status(http_status_1.HTTP_STATUS.NOT_FOUND).json((0, response_helpers_1.createNotFoundResponse)('Route not found'));

@@ -24,5 +24,10 @@ exports.config = {
         windowMs: parseInt(process.env['RATE_LIMIT_WINDOW_MS'] || '900000', 10), // 15 minutes
         max: parseInt(process.env['RATE_LIMIT_MAX'] || '100', 10), // Limit each IP to 100 requests per window
     },
+    cloudinary: {
+        cloudName: process.env['CLOUDINARY_CLOUD_NAME'] || '',
+        apiKey: process.env['CLOUDINARY_API_KEY'] || '',
+        apiSecret: process.env['CLOUDINARY_API_SECRET'] || '',
+    },
 };
 //# sourceMappingURL=index.js.map

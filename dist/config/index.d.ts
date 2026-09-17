@@ -21,5 +21,10 @@ export declare const config: {
         windowMs: number;
         max: number;
     };
+    cloudinary: {
+        cloudName: string;
+        apiKey: string;
+        apiSecret: string;
+    };
 };
 //# sourceMappingURL=index.d.ts.map

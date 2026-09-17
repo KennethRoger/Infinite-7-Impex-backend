@@ -18,6 +18,7 @@ import { ProductController } from './controllers/product.controller';
 import { createProductRoutes } from './routes/product.routes';
 import { BlogController } from './controllers/blog.controller';
 import { createBlogRoutes } from './routes/blog.routes';
+import { createUploadRoutes } from './routes/upload.routes';
 import { HTTP_STATUS } from './types/http-status';
 
 const app = express();
@@ -92,6 +93,10 @@ async function startServer() {
     const blogRoutes = createBlogRoutes(blogController);
     app.use('/blogs', blogRoutes);
     app.use('/api/blogs', blogRoutes);
+
+    const uploadRoutes = createUploadRoutes();
+    app.use('/upload', uploadRoutes);
+    app.use('/api/upload', uploadRoutes);
 
     // 404 handler (must be after all routes)
     app.use((_req, res) => {
