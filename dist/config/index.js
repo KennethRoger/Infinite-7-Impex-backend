@@ -34,5 +34,11 @@ exports.config = {
         apiKey: process.env['CLOUDINARY_API_KEY'] || '',
         apiSecret: process.env['CLOUDINARY_API_SECRET'] || '',
     },
+    cors: {
+        allowedOrigins: (process.env['ALLOWED_ORIGINS'] || '')
+            .split(',')
+            .map((o) => o.trim())
+            .filter(Boolean),
+    },
 };
 //# sourceMappingURL=index.js.map

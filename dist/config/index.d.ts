@@ -26,5 +26,8 @@ export declare const config: {
         apiKey: string;
         apiSecret: string;
     };
+    cors: {
+        allowedOrigins: string[];
+    };
 };
 //# sourceMappingURL=index.d.ts.map

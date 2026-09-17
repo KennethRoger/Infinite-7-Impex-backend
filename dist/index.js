@@ -4,6 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
+const cors_1 = __importDefault(require("cors"));
 const config_1 = require("./config");
 const database_1 = require("./config/database");
 const di_1 = require("./di");
@@ -19,17 +20,36 @@ const upload_routes_1 = require("./routes/upload.routes");
 const http_status_1 = require("./types/http-status");
 const app = (0, express_1.default)();
 const PORT = config_1.config.port;
-// Global Middleware
-app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-    if (req.method === 'OPTIONS') {
-        res.sendStatus(200);
-        return;
-    }
-    next();
-});
+// CORS configuration supporting local dev, Vercel deployments, and configured custom domains
+const defaultAllowedOrigins = [
+    'http://localhost:5173',
+    'http://localhost:3000',
+    'http://127.0.0.1:5173',
+    'http://127.0.0.1:3000',
+    ...config_1.config.cors.allowedOrigins,
+];
+app.use((0, cors_1.default)({
+    origin: (origin, callback) => {
+        // Allow requests with no origin (e.g. mobile apps, curl, server-to-server, UptimeRobot keep-alive)
+        if (!origin) {
+            return callback(null, true);
+        }
+        // Allow configured origins (localhost, custom domains)
+        if (defaultAllowedOrigins.includes(origin)) {
+            return callback(null, true);
+        }
+        // Allow any Vercel deployment (*.vercel.app)
+        if (/^https:\/\/([a-zA-Z0-9-]+\.)*vercel\.app$/.test(origin)) {
+            return callback(null, true);
+        }
+        // Reject other origins
+        callback(null, false);
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization'],
+    optionsSuccessStatus: 200,
+}));
 app.use(rate_limiter_1.globalRateLimiter);
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: true }));
