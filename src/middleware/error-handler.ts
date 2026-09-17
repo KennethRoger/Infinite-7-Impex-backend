@@ -82,5 +82,7 @@ export function errorHandler(
   }
 
   // Default server error
-  res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json(createFailureResponse(errorMessage, ERROR_CODES.SERVER_ERROR));
+  const isProduction = process.env['NODE_ENV'] === 'production';
+  const safeMessage = isProduction ? 'An unexpected error occurred. Please try again later.' : errorMessage;
+  res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json(createFailureResponse(safeMessage, ERROR_CODES.SERVER_ERROR));
 }

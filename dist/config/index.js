@@ -17,9 +17,9 @@ exports.config = {
         port: parseInt(process.env['SMTP_PORT'] || '587', 10),
         secure: process.env['SMTP_SECURE'] === 'true',
         user: process.env['SMTP_USER'] || '',
-        pass: process.env['SMTP_PASS'] || '',
-        from: process.env['EMAIL_FROM'] || 'Infinite 7 Impex <noreply@infinite7impex.com>',
-        adminEmail: process.env['NOTIFICATION_EMAIL'] || process.env['ADMIN_EMAIL'] || 'goronstrange@gmail.com',
+        pass: (process.env['SMTP_PASS'] || '').replace(/\s+/g, ''),
+        from: process.env['EMAIL_FROM'] || 'Infinite 7 Impex <infinite7impex@gmail.com>',
+        adminEmail: process.env['NOTIFICATION_EMAIL'] || process.env['ADMIN_EMAIL'] || 'infinite7impex@gmail.com',
     },
     jwt: {
         secret: process.env['JWT_SECRET'] || 'infinite7_jwt_secret_key_change_in_production',

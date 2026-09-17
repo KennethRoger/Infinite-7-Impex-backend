@@ -59,6 +59,8 @@ function errorHandler(err, _req, res, _next) {
         return;
     }
     // Default server error
-    res.status(http_status_1.HTTP_STATUS.INTERNAL_SERVER_ERROR).json((0, response_helpers_1.createFailureResponse)(errorMessage, error_codes_1.ERROR_CODES.SERVER_ERROR));
+    const isProduction = process.env['NODE_ENV'] === 'production';
+    const safeMessage = isProduction ? 'An unexpected error occurred. Please try again later.' : errorMessage;
+    res.status(http_status_1.HTTP_STATUS.INTERNAL_SERVER_ERROR).json((0, response_helpers_1.createFailureResponse)(safeMessage, error_codes_1.ERROR_CODES.SERVER_ERROR));
 }
 //# sourceMappingURL=error-handler.js.map
