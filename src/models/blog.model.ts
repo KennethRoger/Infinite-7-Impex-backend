@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 // Embedded document for blog sections
 export const BlogSectionSchema = z.object({
-  sectionTitle: z.string().optional(),
+  sectionTitle: z.string().optional().or(z.literal('')),
   description: z
     .string({ message: 'Section description is required' })
     .min(1, 'Section description is required'),
@@ -19,10 +19,11 @@ export const BlogSchema = z.object({
   description: z
     .string({ message: 'Description is required' })
     .min(1, 'Description is required'),
-  image: z.string().url('Image must be a valid URL').optional(),
+  image: z.string().url('Image must be a valid URL').optional().or(z.literal('')),
   sections: z
     .array(BlogSectionSchema, { message: 'At least one section is required' })
-    .min(1, 'At least one section is required'),
+    .min(1, 'At least one section is required')
+    .max(5, 'A blog can have a maximum of 5 sections'),
   createdAt: z.date().optional(),
   updatedAt: z.date().optional(),
 });
@@ -46,10 +47,11 @@ export const UpdateBlogSchema = z.object({
     .string({ message: 'Description is required' })
     .min(1, 'Description is required')
     .optional(),
-  image: z.string().url('Image must be a valid URL').optional(),
+  image: z.string().url('Image must be a valid URL').optional().or(z.literal('')),
   sections: z
     .array(BlogSectionSchema, { message: 'At least one section is required' })
     .min(1, 'At least one section is required')
+    .max(5, 'A blog can have a maximum of 5 sections')
     .optional(),
 });
 export type UpdateBlogDto = z.infer<typeof UpdateBlogSchema>;

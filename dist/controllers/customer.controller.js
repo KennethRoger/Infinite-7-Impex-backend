@@ -27,6 +27,9 @@ class CustomerController {
             const pagination = { page, limit };
             const sort = { field: sortBy, order: sortOrder };
             const filters = {};
+            if (typeof req.query['search'] === 'string' && req.query['search'].trim() !== '') {
+                filters.search = req.query['search'].trim();
+            }
             if (typeof req.query['fullName'] === 'string' && req.query['fullName'].trim() !== '') {
                 filters.fullName = req.query['fullName'].trim();
             }

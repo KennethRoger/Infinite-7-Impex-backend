@@ -30,7 +30,7 @@ const storage = multer.memoryStorage();
 const upload = multer({
   storage,
   limits: {
-    fileSize: 10 * 1024 * 1024, // 10 MB maximum
+    fileSize: 5 * 1024 * 1024, // 5 MB maximum
   },
   fileFilter: (_req, file, cb) => {
     if (file.mimetype.startsWith('image/')) {
@@ -53,7 +53,7 @@ export function createUploadRoutes(): Router {
           if (err.code === 'LIMIT_FILE_SIZE') {
             res
               .status(HTTP_STATUS.BAD_REQUEST)
-              .json(createBadRequestResponse('Image file size exceeds 10MB limit'));
+              .json(createBadRequestResponse('Image file size exceeds 5MB limit'));
             return;
           }
           res
@@ -78,20 +78,13 @@ export function createUploadRoutes(): Router {
         return;
       }
 
-      // Check Cloudinary configuration
-      if (
-        !config.cloudinary.cloudName ||
-        !config.cloudinary.apiKey ||
-        !config.cloudinary.apiSecret
-      ) {
-        res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json(
-          createFailureResponse(
-            'Cloudinary is not configured. Please add CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET in server/.env, or paste an image URL directly.',
-            ERROR_CODES.SERVER_ERROR
-          )
-        );
-        return;
-      }
+      // Configure Cloudinary
+      cloudinary.config({
+        cloud_name: config.cloudinary.cloudName,
+        api_key: config.cloudinary.apiKey,
+        api_secret: config.cloudinary.apiSecret,
+        secure: true,
+      });
 
       try {
         const folder = (req.query['folder'] as string) || 'infinite7_impex/categories';
@@ -129,11 +122,11 @@ export function createUploadRoutes(): Router {
             'Image uploaded successfully'
           )
         );
-      } catch (uploadError) {
+      } catch (uploadError: any) {
+        console.error('Cloudinary upload error details:', uploadError);
         const message =
-          uploadError instanceof Error
-            ? uploadError.message
-            : 'Failed to upload image to Cloudinary';
+          uploadError?.message ||
+          (uploadError instanceof Error ? uploadError.message : 'Failed to upload image to Cloudinary');
         res
           .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
           .json(createFailureResponse(message, ERROR_CODES.SERVER_ERROR));

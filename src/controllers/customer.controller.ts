@@ -42,6 +42,10 @@ export class CustomerController {
 
       const filters: CustomerQueryFilters = {};
 
+      if (typeof req.query['search'] === 'string' && req.query['search'].trim() !== '') {
+        filters.search = req.query['search'].trim();
+      }
+
       if (typeof req.query['fullName'] === 'string' && req.query['fullName'].trim() !== '') {
         filters.fullName = req.query['fullName'].trim();
       }

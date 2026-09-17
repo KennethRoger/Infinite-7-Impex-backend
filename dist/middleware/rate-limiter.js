@@ -13,6 +13,18 @@ exports.globalRateLimiter = (0, express_rate_limit_1.default)({
     max: config_1.config.rateLimit.max,
     standardHeaders: true,
     legacyHeaders: false,
+    skip: (req) => {
+        // Exempt authenticated requests (e.g. admin portal actions/searches)
+        const authHeader = req.headers['authorization'];
+        if (authHeader && authHeader.startsWith('Bearer ')) {
+            return true;
+        }
+        // Also skip OPTIONS preflight requests
+        if (req.method === 'OPTIONS') {
+            return true;
+        }
+        return false;
+    },
     handler: (_req, res) => {
         res.status(http_status_1.HTTP_STATUS.TOO_MANY_REQUESTS).json((0, response_helpers_1.createTooManyRequestsResponse)('Too many requests, please try again later'));
     },

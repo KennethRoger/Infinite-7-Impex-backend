@@ -36,25 +36,43 @@ class CustomerRepository extends base_repository_1.BaseRepository {
         return result.data;
     }
     async findFiltered(filters = {}, pagination, sort) {
-        const mongoFilter = {};
+        const conditions = [];
+        if (filters.search && filters.search.trim() !== '') {
+            const searchRegex = { $regex: escapeRegex(filters.search.trim()), $options: 'i' };
+            conditions.push({
+                $or: [
+                    { fullName: searchRegex },
+                    { email: searchRegex },
+                    { country: searchRegex },
+                    { phone: searchRegex },
+                    { notes: searchRegex },
+                    { message: searchRegex },
+                ],
+            });
+        }
         if (filters.fullName && filters.fullName.trim() !== '') {
-            mongoFilter['fullName'] = { $regex: escapeRegex(filters.fullName.trim()), $options: 'i' };
+            conditions.push({ fullName: { $regex: escapeRegex(filters.fullName.trim()), $options: 'i' } });
         }
         if (filters.email && filters.email.trim() !== '') {
-            mongoFilter['email'] = { $regex: escapeRegex(filters.email.trim()), $options: 'i' };
+            conditions.push({ email: { $regex: escapeRegex(filters.email.trim()), $options: 'i' } });
         }
         if (filters.country && filters.country.trim() !== '') {
-            mongoFilter['country'] = { $regex: escapeRegex(filters.country.trim()), $options: 'i' };
+            conditions.push({ country: { $regex: escapeRegex(filters.country.trim()), $options: 'i' } });
         }
         if (filters.priority) {
-            mongoFilter['priority'] = filters.priority;
+            conditions.push({ priority: filters.priority });
         }
         if (filters.notes && filters.notes.trim() !== '') {
-            mongoFilter['notes'] = { $regex: escapeRegex(filters.notes.trim()), $options: 'i' };
+            conditions.push({ notes: { $regex: escapeRegex(filters.notes.trim()), $options: 'i' } });
         }
         if (typeof filters.isActive === 'boolean') {
-            mongoFilter['isActive'] = filters.isActive;
+            conditions.push({ isActive: filters.isActive });
         }
+        const mongoFilter = conditions.length === 0
+            ? {}
+            : conditions.length === 1
+                ? conditions[0]
+                : { $and: conditions };
         return this.findMany(mongoFilter, pagination, sort);
     }
 }

@@ -45,6 +45,7 @@ export const UpdateCustomerNotesSchema = z.object({
 export type UpdateCustomerNotesDto = z.infer<typeof UpdateCustomerNotesSchema>;
 
 export interface CustomerQueryFilters {
+  search?: string;
   fullName?: string;
   email?: string;
   country?: string;

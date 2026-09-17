@@ -4,7 +4,7 @@ exports.UpdateBlogSchema = exports.CreateBlogSchema = exports.BlogSchema = expor
 const zod_1 = require("zod");
 // Embedded document for blog sections
 exports.BlogSectionSchema = zod_1.z.object({
-    sectionTitle: zod_1.z.string().optional(),
+    sectionTitle: zod_1.z.string().optional().or(zod_1.z.literal('')),
     description: zod_1.z
         .string({ message: 'Section description is required' })
         .min(1, 'Section description is required'),
@@ -18,10 +18,11 @@ exports.BlogSchema = zod_1.z.object({
     description: zod_1.z
         .string({ message: 'Description is required' })
         .min(1, 'Description is required'),
-    image: zod_1.z.string().url('Image must be a valid URL').optional(),
+    image: zod_1.z.string().url('Image must be a valid URL').optional().or(zod_1.z.literal('')),
     sections: zod_1.z
         .array(exports.BlogSectionSchema, { message: 'At least one section is required' })
-        .min(1, 'At least one section is required'),
+        .min(1, 'At least one section is required')
+        .max(5, 'A blog can have a maximum of 5 sections'),
     createdAt: zod_1.z.date().optional(),
     updatedAt: zod_1.z.date().optional(),
 });
@@ -40,10 +41,11 @@ exports.UpdateBlogSchema = zod_1.z.object({
         .string({ message: 'Description is required' })
         .min(1, 'Description is required')
         .optional(),
-    image: zod_1.z.string().url('Image must be a valid URL').optional(),
+    image: zod_1.z.string().url('Image must be a valid URL').optional().or(zod_1.z.literal('')),
     sections: zod_1.z
         .array(exports.BlogSectionSchema, { message: 'At least one section is required' })
         .min(1, 'At least one section is required')
+        .max(5, 'A blog can have a maximum of 5 sections')
         .optional(),
 });
 //# sourceMappingURL=blog.model.js.map
