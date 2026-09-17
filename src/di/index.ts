@@ -64,7 +64,8 @@ export function initializeDI() {
     const productCategoryRepository = container.resolve<ProductCategoryRepository>(
       'productCategoryRepository'
     );
-    return new ProductCategoryService(productCategoryRepository);
+    const productRepository = container.resolve<ProductRepository>('productRepository');
+    return new ProductCategoryService(productCategoryRepository, productRepository);
   }, true);
 
   container.register('productService', () => {

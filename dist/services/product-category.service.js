@@ -6,8 +6,9 @@ const error_handler_1 = require("../middleware/error-handler");
 const http_status_1 = require("../types/http-status");
 const error_codes_1 = require("../types/error-codes");
 class ProductCategoryService {
-    constructor(productCategoryRepository) {
+    constructor(productCategoryRepository, productRepository) {
         this.productCategoryRepository = productCategoryRepository;
+        this.productRepository = productRepository;
     }
     async createCategory(dto) {
         const existing = await this.productCategoryRepository.findByName(dto.name);
@@ -46,6 +47,13 @@ class ProductCategoryService {
         const existing = await this.productCategoryRepository.findById(id);
         if (!existing) {
             throw new error_handler_1.AppError(http_status_1.HTTP_STATUS.NOT_FOUND, error_codes_1.ERROR_CODES.NOT_FOUND, 'Category not found');
+        }
+        // Prevent deletion if category contains active products
+        if (this.productRepository) {
+            const activeProducts = await this.productRepository.findActiveByCategory(id);
+            if (activeProducts.length > 0) {
+                throw new error_handler_1.AppError(http_status_1.HTTP_STATUS.CONFLICT, error_codes_1.ERROR_CODES.CONFLICT, `Cannot delete category '${existing.name}' because it contains ${activeProducts.length} active product(s). Please reassign or remove the products first.`, [{ field: 'category', message: `Category contains ${activeProducts.length} active product(s)` }]);
+            }
         }
         const isDeleted = await this.productCategoryRepository.delete(id);
         if (!isDeleted) {

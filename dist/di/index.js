@@ -57,7 +57,8 @@ function initializeDI() {
     }, true);
     container_1.container.register('productCategoryService', () => {
         const productCategoryRepository = container_1.container.resolve('productCategoryRepository');
-        return new product_category_service_1.ProductCategoryService(productCategoryRepository);
+        const productRepository = container_1.container.resolve('productRepository');
+        return new product_category_service_1.ProductCategoryService(productCategoryRepository, productRepository);
     }, true);
     container_1.container.register('productService', () => {
         const productRepository = container_1.container.resolve('productRepository');

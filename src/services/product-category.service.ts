@@ -1,5 +1,6 @@
 import { ObjectId, WithId } from 'mongodb';
 import { ProductCategoryRepository } from '../repositories/product-category.repository';
+import { ProductRepository } from '../repositories/product.repository';
 import {
   ProductCategory,
   CreateProductCategoryDto,
@@ -12,7 +13,10 @@ import { HTTP_STATUS } from '../types/http-status';
 import { ERROR_CODES } from '../types/error-codes';
 
 export class ProductCategoryService {
-  constructor(private productCategoryRepository: ProductCategoryRepository) {}
+  constructor(
+    private productCategoryRepository: ProductCategoryRepository,
+    private productRepository?: ProductRepository
+  ) {}
 
   async createCategory(dto: CreateProductCategoryDto): Promise<WithId<ProductCategory>> {
     const existing = await this.productCategoryRepository.findByName(dto.name);
@@ -72,6 +76,19 @@ export class ProductCategoryService {
     const existing = await this.productCategoryRepository.findById(id);
     if (!existing) {
       throw new AppError(HTTP_STATUS.NOT_FOUND, ERROR_CODES.NOT_FOUND, 'Category not found');
+    }
+
+    // Prevent deletion if category contains active products
+    if (this.productRepository) {
+      const activeProducts = await this.productRepository.findActiveByCategory(id);
+      if (activeProducts.length > 0) {
+        throw new AppError(
+          HTTP_STATUS.CONFLICT,
+          ERROR_CODES.CONFLICT,
+          `Cannot delete category '${existing.name}' because it contains ${activeProducts.length} active product(s). Please reassign or remove the products first.`,
+          [{ field: 'category', message: `Category contains ${activeProducts.length} active product(s)` }]
+        );
+      }
     }
 
     const isDeleted = await this.productCategoryRepository.delete(id);
