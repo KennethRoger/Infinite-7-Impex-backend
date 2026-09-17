@@ -27,6 +27,12 @@ export class EmailService {
           user,
           pass,
         },
+        pool: true,
+        maxConnections: 3,
+        maxMessages: 100,
+        connectionTimeout: 10000, // 10s connection timeout
+        greetingTimeout: 5000,    // 5s greeting timeout
+        socketTimeout: 15000,     // 15s socket activity timeout
       });
     }
   }
