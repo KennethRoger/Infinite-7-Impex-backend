@@ -5,13 +5,20 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.EmailService = void 0;
 const nodemailer_1 = __importDefault(require("nodemailer"));
+const resend_1 = require("resend");
 const config_1 = require("../config");
 class EmailService {
     constructor() {
+        this.resend = null;
         this.transporter = null;
-        const { host, port, secure, user, pass } = config_1.config.mail;
-        this.isConfigured = Boolean(host && user);
-        if (this.isConfigured) {
+        const { resendApiKey, host, port, secure, user, pass } = config_1.config.mail;
+        // 1. Prioritize Resend HTTP API (Port 443 - never blocked by cloud firewalls like Render)
+        if (resendApiKey) {
+            this.resend = new resend_1.Resend(resendApiKey);
+            console.log('[EmailService] Initialized with Resend HTTP API');
+        }
+        else if (host && user) {
+            // 2. Fallback to Nodemailer SMTP (for local dev or custom SMTP servers)
             this.transporter = nodemailer_1.default.createTransport({
                 host,
                 port,
@@ -23,16 +30,19 @@ class EmailService {
                 pool: true,
                 maxConnections: 3,
                 maxMessages: 100,
-                connectionTimeout: 10000, // 10s connection timeout
-                greetingTimeout: 5000, // 5s greeting timeout
-                socketTimeout: 15000, // 15s socket activity timeout
+                connectionTimeout: 10000,
+                greetingTimeout: 5000,
+                socketTimeout: 15000,
             });
+            console.log(`[EmailService] Initialized with SMTP (${host}:${port})`);
+        }
+        else {
+            console.log('[EmailService] Neither RESEND_API_KEY nor SMTP credentials configured');
         }
     }
     async sendCustomerEnquiryNotification(payload) {
         const { fullName, country, email, phone, message } = payload;
         const adminEmail = config_1.config.mail.adminEmail;
-        const fromAddress = config_1.config.mail.from;
         const subject = `New Customer Enquiry: ${fullName} (${country})`;
         const textContent = `
 New Customer Enquiry Received:
@@ -73,25 +83,56 @@ ${message}
         </blockquote>
       </div>
     `.trim();
-        if (!this.transporter) {
-            console.log(`[EmailService] SMTP not fully configured. Notification to admin (${adminEmail}) for customer "${fullName}" logged to console:\n${textContent}`);
-            return false;
+        // 1. Send via Resend HTTP API if configured
+        if (this.resend) {
+            try {
+                // Resend requires a verified domain or 'onboarding@resend.dev' for testing/free tier
+                const fromAddress = config_1.config.mail.resendFrom ||
+                    (config_1.config.mail.from.includes('@resend.dev') || config_1.config.mail.from.includes('@infinite7impex.com')
+                        ? config_1.config.mail.from
+                        : 'Infinite 7 Impex <onboarding@resend.dev>');
+                const { data, error } = await this.resend.emails.send({
+                    from: fromAddress,
+                    to: [adminEmail],
+                    replyTo: email,
+                    subject,
+                    text: textContent,
+                    html: htmlContent,
+                });
+                if (error) {
+                    console.error('[EmailService] Resend API error:', error);
+                    return false;
+                }
+                console.log(`[EmailService] Admin enquiry notification sent via Resend: ${data?.id}`);
+                return true;
+            }
+            catch (resendError) {
+                console.error('[EmailService] Failed to send email notification via Resend:', resendError);
+                return false;
+            }
         }
-        try {
-            const info = await this.transporter.sendMail({
-                from: fromAddress,
-                to: adminEmail,
-                subject,
-                text: textContent,
-                html: htmlContent,
-            });
-            console.log(`[EmailService] Admin enquiry notification sent: ${info.messageId}`);
-            return true;
+        // 2. Send via SMTP if configured
+        if (this.transporter) {
+            try {
+                const info = await this.transporter.sendMail({
+                    from: config_1.config.mail.from,
+                    to: adminEmail,
+                    replyTo: email,
+                    subject,
+                    text: textContent,
+                    html: htmlContent,
+                });
+                console.log(`[EmailService] Admin enquiry notification sent via SMTP: ${info.messageId}`);
+                return true;
+            }
+            catch (smtpError) {
+                console.error('[EmailService] Failed to send email notification via SMTP:', smtpError);
+                return false;
+            }
         }
-        catch (error) {
-            console.error('[EmailService] Failed to send email notification:', error);
-            return false;
-        }
+        // 3. Fallback when neither is configured
+        console.log(`[EmailService] Neither Resend nor SMTP configured. Notification to admin (${adminEmail}) for customer "${fullName}" logged to console:\n${textContent}`);
+        return false;
     }
 }
 exports.EmailService = EmailService;

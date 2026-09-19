@@ -5,6 +5,8 @@ export declare const config: {
         dbName: string;
     };
     mail: {
+        resendApiKey: string;
+        resendFrom: string;
         host: string;
         port: number;
         secure: boolean;

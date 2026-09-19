@@ -7,8 +7,8 @@ export interface CustomerEnquiryNotificationPayload {
     createdAt?: Date | string | undefined;
 }
 export declare class EmailService {
+    private resend;
     private transporter;
-    private readonly isConfigured;
     constructor();
     sendCustomerEnquiryNotification(payload: CustomerEnquiryNotificationPayload): Promise<boolean>;
 }

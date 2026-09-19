@@ -13,6 +13,8 @@ exports.config = {
         dbName: process.env['MONGODB_DB_NAME'] || 'infinite7_impex',
     },
     mail: {
+        resendApiKey: process.env['RESEND_API_KEY'] || '',
+        resendFrom: process.env['RESEND_FROM'] || '',
         host: process.env['SMTP_HOST'] || '',
         port: parseInt(process.env['SMTP_PORT'] || '587', 10),
         secure: process.env['SMTP_SECURE'] === 'true',
